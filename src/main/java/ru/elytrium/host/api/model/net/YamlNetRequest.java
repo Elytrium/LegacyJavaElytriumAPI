@@ -1,16 +1,17 @@
-package ru.elytrium.host.api.model.balance;
+package ru.elytrium.host.api.model.net;
 
-import com.google.gson.Gson;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
 import ru.elytrium.host.api.ElytraHostAPI;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-public class YamlTopUpRequest {
+public class YamlNetRequest {
     public String requestURL;
     public HTTPMethod requestMethod;
     public List<String> requestHeaders;
@@ -18,10 +19,16 @@ public class YamlTopUpRequest {
     public ResponseType responseType;
     public List<String> responseValuePath;
 
-    private final Gson gson = new Gson();
-
-    public List<String> doRequest() throws TopUpException {
+    public List<String> doRequest(Map<String, String> replaceValues) throws YamlNetException {
         try {
+            String requestURL = this.requestURL;
+            String requestData = this.requestData;
+
+            for (Map.Entry<String, String> entry : replaceValues.entrySet()) {
+                requestURL = requestURL.replace(entry.getKey(), entry.getValue());
+                requestData = requestData.replace(entry.getKey(), entry.getValue());
+            }
+
             URL url = new URL(requestURL);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod(String.valueOf(requestMethod));
@@ -52,9 +59,10 @@ public class YamlTopUpRequest {
 
             switch (responseType) {
                 case JSON:
-                    HashMap map = gson.fromJson(content.toString(), HashMap.class);
+                    DocumentContext jsonContext = JsonPath.parse(content.toString());
+
                     List<String> answer = responseValuePath.stream()
-                                                            .map(map::get)
+                                                            .map(jsonContext::read)
                                                             .map(Object::toString)
                                                             .collect(Collectors.toList());
                     return answer;
@@ -62,10 +70,10 @@ public class YamlTopUpRequest {
         } catch (Exception e) {
             ElytraHostAPI.getLogger().fatal("Exception caught while procceding " + this);
             ElytraHostAPI.getLogger().fatal(e);
-            throw new TopUpException("Exception caught");
+            throw new YamlNetException("Exception caught");
         }
 
-        throw new TopUpException("Unexpected EOF");
+        throw new YamlNetException("Unexpected EOF");
     }
 
     public String toString() {

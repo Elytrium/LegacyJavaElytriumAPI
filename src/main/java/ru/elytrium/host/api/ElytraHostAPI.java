@@ -9,7 +9,9 @@ import org.yaml.snakeyaml.constructor.Constructor;
 import ru.elytrium.host.api.db.Database;
 import ru.elytrium.host.api.db.MongoDatabase;
 import ru.elytrium.host.api.manager.shared.ConfigManager;
+import ru.elytrium.host.api.model.balance.TopUpMethod;
 import ru.elytrium.host.api.model.module.Module;
+import ru.elytrium.host.api.model.user.LinkedAccountType;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,6 +27,8 @@ import java.net.UnknownHostException;
 public class ElytraHostAPI {
     private static final Logger logger = LogManager.getLogger("ElytraHostAPI");
     private static final ConfigManager<Module> modules = new ConfigManager<>(Module.class, new File("module"));
+    private static final ConfigManager<LinkedAccountType> linkedAccountTypes = new ConfigManager<>(LinkedAccountType.class, new File("linkedAccount"));
+    private static final ConfigManager<TopUpMethod> topUpMethods = new ConfigManager<>(TopUpMethod.class, new File("topUpMethods"));
 
     public static void main(String[] args) {
         try {

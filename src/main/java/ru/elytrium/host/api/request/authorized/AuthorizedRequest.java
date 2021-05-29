@@ -1,8 +1,11 @@
 package ru.elytrium.host.api.request.authorized;
 
+import com.google.gson.Gson;
+import org.apache.logging.log4j.util.TriConsumer;
+import ru.elytrium.host.api.model.user.LinkedAccountType;
 import ru.elytrium.host.api.model.user.User;
+import ru.elytrium.host.api.request.authorized.user.PushLinkedAccountRequest;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class AuthorizedRequest {
@@ -14,13 +17,13 @@ public class AuthorizedRequest {
         try {
             switch (type) {
                 case "USER":
-                    USER.valueOf(method).proceed(payload, reply);
+                    USER.valueOf(method).proceed(user, payload, reply);
                     return true;
                 case "BALANCE":
-                    BALANCE.valueOf(method).proceed(payload, reply);
+                    BALANCE.valueOf(method).proceed(user, payload, reply);
                     return true;
                 case "INSTANCE":
-                    INSTANCE.valueOf(method).proceed(payload, reply);
+                    INSTANCE.valueOf(method).proceed(user, payload, reply);
                     return true;
             }
         } catch (IllegalArgumentException e) {
@@ -30,27 +33,30 @@ public class AuthorizedRequest {
     }
 
     private static class UserMethods {
-        public static void login(String payload, Consumer<String> send) {
+        private static final Gson gson = new Gson();
 
+        public static void getInfo(User user, String payload, Consumer<String> send) {
+            send.accept(gson.toJson(user));
+        }
+
+        public static void pushLinkedAccount(User user, String payload, Consumer<String> send) {
+            PushLinkedAccountRequest request = gson.fromJson(payload, PushLinkedAccountRequest.class);
+            LinkedAccountType linkedAccountType = ;
         }
     }
 
     public enum USER {
-        LOGIN,
-        LOGIN_VIA_LINKED_ACCOUNT,
-        GET_INFO,
-        LIST_LINKED_ACCOUNT,
-        REGISTER,
+        GET_INFO(UserMethods::getInfo),
         PUSH_LINKED_ACCOUNT;
 
-        private final BiConsumer<String, Consumer<String>> method;
+        private final TriConsumer<User, String, Consumer<String>> method;
 
-        USER(BiConsumer<String, Consumer<String>> method) {
+        USER(TriConsumer<User, String, Consumer<String>> method) {
             this.method = method;
         }
 
-        public void proceed(String payload, Consumer<String> send) {
-            method.accept(payload, send);
+        public void proceed(User user, String payload, Consumer<String> send) {
+            method.accept(user, payload, send);
         }
     }
 
@@ -59,14 +65,14 @@ public class AuthorizedRequest {
         LIST_METHODS,
         LIST_PENDING_PURCHASES;
 
-        private final BiConsumer<String, Consumer<String>> method;
+        private final TriConsumer<User, String, Consumer<String>> method;
 
-        BALANCE(BiConsumer<String, Consumer<String>> method) {
+        BALANCE(TriConsumer<User, String, Consumer<String>> method) {
             this.method = method;
         }
 
-        public void proceed(String payload, Consumer<String> send) {
-            method.accept(payload, send);
+        public void proceed(User user, String payload, Consumer<String> send) {
+            method.accept(user, payload, send);
         }
     }
 
@@ -81,14 +87,14 @@ public class AuthorizedRequest {
         GET_TEMP_S3_LINK,
         UPDATE;
 
-        private final BiConsumer<String, Consumer<String>> method;
+        private final TriConsumer<User, String, Consumer<String>> method;
 
-        INSTANCE(BiConsumer<String, Consumer<String>> method) {
+        INSTANCE(TriConsumer<User, String, Consumer<String>> method) {
             this.method = method;
         }
 
-        public void proceed(String payload, Consumer<String> send) {
-            method.accept(payload, send);
+        public void proceed(User user, String payload, Consumer<String> send) {
+            method.accept(user, payload, send);
         }
     }
 }

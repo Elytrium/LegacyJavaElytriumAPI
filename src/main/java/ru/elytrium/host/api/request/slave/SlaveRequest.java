@@ -3,7 +3,6 @@ package ru.elytrium.host.api.request.slave;
 import com.google.gson.Gson;
 import ru.elytrium.host.api.manager.slave.ContainerManager;
 import ru.elytrium.host.api.model.module.ModuleInstance;
-import ru.elytrium.host.api.model.user.User;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -14,6 +13,15 @@ public class SlaveRequest {
     private String type;
     private String method;
     private String payload;
+
+    public SlaveRequest() {}
+
+    public SlaveRequest(String masterKey, String type, String method, String payload) {
+        this.masterKey = masterKey;
+        this.type = type;
+        this.method = method;
+        this.payload = payload;
+    }
 
     public boolean proceedRequest(String masterKey, Consumer<String> reply) {
         if (!masterKey.equals(this.masterKey)) {
