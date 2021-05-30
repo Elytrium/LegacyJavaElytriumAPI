@@ -12,12 +12,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class YamlNetRequest {
-    public String requestURL;
-    public HTTPMethod requestMethod;
-    public List<String> requestHeaders;
-    public String requestData;
-    public ResponseType responseType;
-    public List<String> responseValuePath;
+    private String requestURL;
+    private HTTPMethod requestMethod;
+    private List<String> requestHeaders;
+    private String requestData;
+    private ResponseType responseType;
+    private List<String> responseValuePath;
 
     public List<String> doRequest(Map<String, String> replaceValues) throws YamlNetException {
         try {

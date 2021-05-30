@@ -1,6 +1,7 @@
 package ru.elytrium.host.api;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -13,7 +14,6 @@ import java.util.HashMap;
 
 public class MasterListener extends WebSocketServer {
     private final HashMap<WebSocket, User> userHashMap = new HashMap<>();
-    private final Gson gson = new Gson();
 
     public MasterListener(String hostname, int port) {
         super(new InetSocketAddress(hostname, port));
@@ -33,7 +33,7 @@ public class MasterListener extends WebSocketServer {
     @Override
     public void onMessage(WebSocket webSocket, String message) {
         if (!userHashMap.containsKey(webSocket)) {
-            UnauthorizedRequest request = gson.fromJson(message, UnauthorizedRequest.class);
+            UnauthorizedRequest request = ElytraHostAPI.getGson().fromJson(message, UnauthorizedRequest.class);
             boolean succeed = request.proceedRequest(user -> {
 
             });
@@ -44,7 +44,7 @@ public class MasterListener extends WebSocketServer {
         }
         else {
             User user = userHashMap.get(webSocket);
-            AuthorizedRequest request = gson.fromJson(message, AuthorizedRequest.class);
+            AuthorizedRequest request = ElytraHostAPI.getGson().fromJson(message, AuthorizedRequest.class);
             boolean succeed = request.proceedRequest(user, webSocket::send);
 
             if (!succeed) {

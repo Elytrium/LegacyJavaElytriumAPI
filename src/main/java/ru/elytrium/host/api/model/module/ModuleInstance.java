@@ -1,6 +1,7 @@
 package ru.elytrium.host.api.model.module;
 
 import ru.elytrium.host.api.ElytraHostAPI;
+import ru.elytrium.host.api.model.Exclude;
 import ru.elytrium.host.api.model.module.billing.ModuleBilling;
 import ru.elytrium.host.api.model.module.params.ModuleConfigFile;
 import ru.elytrium.host.api.model.module.params.ModuleMount;
@@ -23,6 +24,8 @@ public class ModuleInstance {
     private final List<ModuleMount> mountsOverrides;
     private final List<ModuleConfigFile> configsOverrides;
     private final List<ModulePlugin> pluginsOverrides;
+
+    @Exclude
     private Module module;
 
     public ModuleInstance(User user, String moduleName, ModuleVersion version, ModuleBilling billing, String endpointDomain) {

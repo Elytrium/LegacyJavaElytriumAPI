@@ -1,6 +1,8 @@
 package ru.elytrium.host.api.request.unauthorized;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import ru.elytrium.host.api.ElytraHostAPI;
 import ru.elytrium.host.api.model.user.User;
 import ru.elytrium.host.api.request.unauthorized.user.LoginRequest;
 import ru.elytrium.host.api.request.unauthorized.user.LoginViaLinkedAccountRequest;
@@ -15,11 +17,7 @@ public class UnauthorizedRequest {
 
     public boolean proceedRequest(Consumer<User> authorize) {
         try {
-            switch (type) {
-                case "USER":
-                    USER.valueOf(method).proceed(payload, authorize);
-                    return true;
-            }
+            USER.valueOf(method).proceed(payload, authorize);
         } catch (IllegalArgumentException exception) {
             return false;
         }
@@ -27,18 +25,16 @@ public class UnauthorizedRequest {
     }
 
     private static class UserMethods {
-        private static final Gson gson = new Gson();
-
         public static void login(String payload, Consumer<User> authorize) {
-            LoginRequest request = gson.fromJson(payload, LoginRequest.class);
+            LoginRequest request = ElytraHostAPI.getGson().fromJson(payload, LoginRequest.class);
         }
 
         public static void loginViaLinkedAccount(String payload, Consumer<User> authorize) {
-            LoginViaLinkedAccountRequest request = gson.fromJson(payload, LoginViaLinkedAccountRequest.class);
+            LoginViaLinkedAccountRequest request = ElytraHostAPI.getGson().fromJson(payload, LoginViaLinkedAccountRequest.class);
         }
 
         public static void register(String payload, Consumer<User> authorize) {
-            LoginRequest request = gson.fromJson(payload, LoginRequest.class);
+            LoginRequest request = ElytraHostAPI.getGson().fromJson(payload, LoginRequest.class);
         }
     }
 

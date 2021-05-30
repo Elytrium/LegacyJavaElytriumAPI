@@ -24,7 +24,9 @@ public class ConfigManager<T> {
         Yaml yaml = new Yaml(new Constructor(tClass));
         try {
             for (File moduleFile : moduleFiles) {
-                items.put(moduleFile.getName().replaceFirst("[.][^.]+$", ""), yaml.load(new FileReader(moduleFile.getAbsoluteFile())));
+                String itemName = moduleFile.getName().replaceFirst("[.][^.]+$", "");
+                items.put(itemName, yaml.load(new FileReader(moduleFile.getAbsoluteFile())));
+                ElytraHostAPI.getLogger().info("Manager: Loading  " + directory + "." + moduleFile.getName());
             }
         } catch (FileNotFoundException ignored) { }
     }

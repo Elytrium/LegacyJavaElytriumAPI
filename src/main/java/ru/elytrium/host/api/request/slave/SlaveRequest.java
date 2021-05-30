@@ -1,6 +1,6 @@
 package ru.elytrium.host.api.request.slave;
 
-import com.google.gson.Gson;
+import ru.elytrium.host.api.ElytraHostAPI;
 import ru.elytrium.host.api.manager.slave.ContainerManager;
 import ru.elytrium.host.api.model.module.ModuleInstance;
 
@@ -29,10 +29,9 @@ public class SlaveRequest {
         }
 
         try {
-            switch (type) {
-                case "INSTANCE":
-                    INSTANCE.valueOf(method).proceed(payload, reply);
-                    return true;
+            if ("INSTANCE".equals(type)) {
+                INSTANCE.valueOf(method).proceed(payload, reply);
+                return true;
             }
         } catch (IllegalArgumentException e) {
             return false;
@@ -41,21 +40,20 @@ public class SlaveRequest {
     }
 
     private static class Instance {
-        private static final Gson gson = new Gson();
         private static final ContainerManager containerManager = new ContainerManager();
 
         public static void listRunningInstances(String payload, Consumer<String> send) {
             List<ModuleInstance> instances = containerManager.listRunningInstances();
-            send.accept(gson.toJson(instances));
+            send.accept(ElytraHostAPI.getGson().toJson(instances));
         }
 
         public static void run(String payload, Consumer<String> send) {
-            ModuleInstance instance = gson.fromJson(payload, ModuleInstance.class);
+            ModuleInstance instance = ElytraHostAPI.getGson().fromJson(payload, ModuleInstance.class);
             containerManager.runInstance(instance);
         }
 
         public static void pause(String payload, Consumer<String> send) {
-            ModuleInstance instance = gson.fromJson(payload, ModuleInstance.class);
+            ModuleInstance instance = ElytraHostAPI.getGson().fromJson(payload, ModuleInstance.class);
             containerManager.pauseInstance(instance);
         }
     }
