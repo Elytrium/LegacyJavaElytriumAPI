@@ -64,9 +64,4 @@ public class Balance {
         }
         return false;
     }
-
-    @Override
-    public int hashCode() {
-        return uuid.hashCode();
-    }
 }

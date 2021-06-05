@@ -3,7 +3,7 @@ package ru.elytrium.host.api;
 import java.lang.reflect.Field;
 
 public class Config {
-    public UsageCase usageCase;
+    private UsageCase usageCase;
 
     private String logLevel;
     private String masterKey;
@@ -94,6 +94,10 @@ public class Config {
 
     public String getBucketRegion() {
         return bucketRegion;
+    }
+
+    public UsageCase getUsageCase() {
+        return usageCase;
     }
 
     public enum UsageCase {

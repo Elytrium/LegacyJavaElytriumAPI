@@ -4,12 +4,14 @@ import ru.elytrium.host.api.model.module.ModuleInstance;
 import ru.elytrium.host.api.model.module.RunningModuleInstance;
 import ru.elytrium.host.api.model.net.YamlNetRequest;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class AutoExpandBackendInstance extends BackendInstance {
     private YamlNetRequest createInstanceRequest;
     private YamlNetRequest suspendInstanceRequest;
-    private String wsPort;
+    private String apiPort;
+    private HashMap<String, String> tariff;
     private int limitServers;
 
     @Override

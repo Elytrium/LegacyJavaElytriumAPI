@@ -11,4 +11,12 @@ public class ModuleBilling {
     public int getAmount() {
         return amount;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ModuleBilling) {
+            return ((ModuleBilling) o).billingType.equals(billingType);
+        }
+        return false;
+    }
 }

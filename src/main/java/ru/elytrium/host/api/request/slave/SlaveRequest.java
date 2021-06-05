@@ -49,12 +49,13 @@ public class SlaveRequest {
 
         public static void run(String payload, Consumer<String> send) {
             ModuleInstance instance = ElytraHostAPI.getGson().fromJson(payload, ModuleInstance.class);
-            containerManager.runInstance(instance);
+            send.accept(String.valueOf(containerManager.runInstance(instance)));
         }
 
         public static void pause(String payload, Consumer<String> send) {
             ModuleInstance instance = ElytraHostAPI.getGson().fromJson(payload, ModuleInstance.class);
             containerManager.pauseInstance(instance);
+            send.accept("OK");
         }
     }
 

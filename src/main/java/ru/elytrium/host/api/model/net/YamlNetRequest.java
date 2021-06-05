@@ -26,20 +26,17 @@ public class YamlNetRequest {
 
             for (Map.Entry<String, String> entry : replaceValues.entrySet()) {
                 requestURL = requestURL.replace(entry.getKey(), entry.getValue());
-                requestData = requestData.replace(entry.getKey(), entry.getValue());
+            }
+
+            if (requestData != null) {
+                for (Map.Entry<String, String> entry : replaceValues.entrySet()) {
+                    requestData = requestData.replace(entry.getKey(), entry.getValue());
+                }
             }
 
             URL url = new URL(requestURL);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod(String.valueOf(requestMethod));
-
-            if (requestData != null && !requestData.equals("")) {
-                con.setDoOutput(true);
-                DataOutputStream out = new DataOutputStream(con.getOutputStream());
-                out.writeBytes(requestData);
-                out.flush();
-                out.close();
-            }
 
             requestHeaders.forEach(head -> {
                 String[] headerValues = head.split(": ");
@@ -48,6 +45,16 @@ public class YamlNetRequest {
 
             con.setConnectTimeout(5000);
             con.setReadTimeout(5000);
+
+            if (requestData != null) {
+                con.setDoOutput(true);
+                DataOutputStream out = new DataOutputStream(con.getOutputStream());
+                out.writeBytes(requestData);
+                out.flush();
+                out.close();
+            }
+
+            int code = con.getResponseCode();
 
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
@@ -61,11 +68,12 @@ public class YamlNetRequest {
                 case JSON:
                     DocumentContext jsonContext = JsonPath.parse(content.toString());
 
-                    List<String> answer = responseValuePath.stream()
-                                                            .map(jsonContext::read)
-                                                            .map(Object::toString)
-                                                            .collect(Collectors.toList());
-                    return answer;
+                    return responseValuePath.stream()
+                                            .map(jsonContext::read)
+                                            .map(Object::toString)
+                                            .collect(Collectors.toList());
+                case NONE:
+                    return null;
             }
         } catch (Exception e) {
             ElytraHostAPI.getLogger().fatal("Exception caught while procceding " + this);
@@ -85,10 +93,10 @@ public class YamlNetRequest {
     }
 
     public enum HTTPMethod {
-        GET, POST, PUT
+        GET, POST, PUT, DELETE
     }
 
     public enum ResponseType {
-        JSON
+        JSON, NONE
     }
 }

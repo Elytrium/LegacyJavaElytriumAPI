@@ -24,7 +24,19 @@ public class BalanceMethods extends RequestType {
     }
     public static void genTopUpLink(User user, String payload, Consumer<Response> send) {
         GenTopUpLinkRequestModel request = ElytraHostAPI.getGson().fromJson(payload, GenTopUpLinkRequestModel.class);
+        if (request.amount < 1) {
+            send.accept(
+                    Response.genBadRequestResponse("Incorrect 'amount' parameter")
+            );
+            return;
+        }
         TopUpMethod method = ElytraHostAPI.getTopUpMethods().getItem(request.topUpMethod);
+        if (method == null) {
+            send.accept(
+                    Response.genBadRequestResponse("Incorrect 'method' parameter")
+            );
+            return;
+        }
         PendingPurchase pendingPurchase = method.requestTopUp(user, request.amount);
         send.accept(
             Response.genSuccessResponse(method.getPayString(pendingPurchase.getTopUpId()))

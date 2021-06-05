@@ -16,7 +16,7 @@ public class ModuleConfigFile {
 
     public String folder;
 
-    public String fileName;
+    public String filename;
 
     @Exclude
     public FileMethod method;
@@ -41,7 +41,7 @@ public class ModuleConfigFile {
 
             provider.save(config, file);
         } catch (Exception e) {
-            ElytraHostAPI.getLogger().fatal("Error while proceeding deserialization of " + fileName);
+            ElytraHostAPI.getLogger().fatal("Error while proceeding deserialization of " + filename);
             ElytraHostAPI.getLogger().fatal(e);
         }
     }
@@ -56,7 +56,7 @@ public class ModuleConfigFile {
                     .filter(e -> VersionUtils.checkVersion(e.versionRange, version.version))
                     .forEach(e -> e.value = config.get(e.name).toString());
         } catch (Exception e) {
-            ElytraHostAPI.getLogger().fatal("Error while proceeding serialization of " + fileName);
+            ElytraHostAPI.getLogger().fatal("Error while proceeding serialization of " + filename);
             ElytraHostAPI.getLogger().fatal(e);
         }
     }

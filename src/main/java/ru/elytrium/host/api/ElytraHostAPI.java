@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.introspector.BeanAccess;
 import ru.elytrium.host.api.manager.master.BalanceManager;
 import ru.elytrium.host.api.manager.master.InstanceManager;
 import ru.elytrium.host.api.manager.shared.ConfigManager;
@@ -62,16 +63,22 @@ public class ElytraHostAPI {
     private static InstanceManager instanceManager;
     private static TickManager tickManager;
     private static StorageManager storageManager;
+    private static Listener listener;
 
     public static void main(String[] args) {
-            ElytraHostAPI.args = args;
-            configLoad();
-            listenerLoad();
+        ElytraHostAPI.args = args;
+        configLoad();
+        listenerLoad();
+        console();
     }
 
     public static void listenerLoad() {
+        if (listener != null) {
+            listener.stop();
+        }
+
         try {
-            switch (config.usageCase) {
+            switch (config.getUsageCase()) {
                 case SLAVE:
                     new SlaveListener(config.getApiHostname(), Integer.parseInt(config.getApiPort()));
                     break;
@@ -87,6 +94,7 @@ public class ElytraHostAPI {
     public static void configLoad() {
         try {
             Yaml yaml = new Yaml(new Constructor(Config.class));
+            yaml.setBeanAccess(BeanAccess.FIELD);
             config = yaml.load(new FileReader("config.yml"));
             config.fillConfig(args);
 

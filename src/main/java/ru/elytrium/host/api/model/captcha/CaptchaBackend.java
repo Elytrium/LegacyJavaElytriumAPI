@@ -13,7 +13,7 @@ public class CaptchaBackend {
 
     public boolean validate(String captchaResponse) {
         try {
-            List<String> response = validateRequest.doRequest(ImmutableMap.of("captchaResponse", "captchaResponse"));
+            List<String> response = validateRequest.doRequest(ImmutableMap.of("{captchaResponse}", captchaResponse));
             return response.get(0).equals(successValue);
         } catch (YamlNetException e) {
             ElytraHostAPI.getLogger().fatal("Error while validating captcha");

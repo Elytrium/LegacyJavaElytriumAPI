@@ -3,11 +3,19 @@ package ru.elytrium.host.api.model.module.params;
 public class ModuleVersion {
     public String version;
     public String displayName;
-    public String visibleVersion;
 
-    public ModuleVersion(String version, String displayName, String visibleVersion) {
+    public ModuleVersion() {}
+
+    public ModuleVersion(String version, String displayName) {
         this.version = version;
         this.displayName = displayName;
-        this.visibleVersion = visibleVersion;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ModuleVersion) {
+            return ((ModuleVersion) o).version.equals(version);
+        }
+        return false;
     }
 }

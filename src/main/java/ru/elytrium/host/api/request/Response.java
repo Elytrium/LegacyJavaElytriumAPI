@@ -4,14 +4,14 @@ import ru.elytrium.host.api.model.Exclude;
 
 public class Response {
 
-    private boolean success;
+    private final boolean success;
 
-    private String message;
+    private final String message;
 
-    private String answer;
+    private final String answer;
 
     @Exclude
-    private int code;
+    private final int code;
 
     public Response(boolean success, String message, String answer, int code) {
         this.success = success;
@@ -34,6 +34,10 @@ public class Response {
 
     public static Response genForbiddenResponse(String message) {
         return new Response(false, message, null, 403);
+    }
+
+    public static Response genUnauthorizedResponse(String message) {
+        return new Response(false, message, null, 401);
     }
 
     public boolean isSuccess() {

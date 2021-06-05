@@ -1,5 +1,6 @@
 package ru.elytrium.host.api.request;
 
+import ru.elytrium.host.api.ElytraHostAPI;
 import ru.elytrium.host.api.request.authorized.AuthorizedRequest;
 import ru.elytrium.host.api.request.unauthorized.UnauthorizedRequest;
 
@@ -16,6 +17,8 @@ public class Request {
         this.method = method;
         this.payload = payload;
         this.token = token;
+
+        ElytraHostAPI.getLogger().trace("Request: " + type + "." + method);
     }
 
     public void proceedRequest(Consumer<Response> reply) {
@@ -24,7 +27,7 @@ public class Request {
             request.proceedRequest(reply);
         } else {
             AuthorizedRequest request = new AuthorizedRequest(this);
-            request.proceedRequest(token, reply);
+            request.proceedRequest(token.replace("Bearer ", ""), reply);
         }
     }
 

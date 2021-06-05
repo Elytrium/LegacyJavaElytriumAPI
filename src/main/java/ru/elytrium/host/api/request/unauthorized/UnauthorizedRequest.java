@@ -60,6 +60,8 @@ public class UnauthorizedRequest {
 
             if (user.verifyHash(request.password)) {
                 authorize.accept(Response.genSuccessResponse(user.getToken()));
+            } else {
+                authorize.accept(Response.genUnauthorizedResponse("Wrong password (Неверный пароль)"));
             }
         }
 
@@ -91,6 +93,15 @@ public class UnauthorizedRequest {
                 return;
             }
 
+            long count = ElytraHostAPI.getDatastore().find(User.class).filter(Filters.and(
+                    Filters.eq("email", request.email)
+            )).count();
+
+            if (count != 0) {
+                authorize.accept(Response.genBadRequestResponse("Incorrect 'user' parameter"));
+                return;
+            }
+
             User newUser = new User(request.email);
             newUser.update();
             authorize.accept(Response.genSuccessResponse());
@@ -109,6 +120,12 @@ public class UnauthorizedRequest {
             )).first();
 
             if (user == null) {
+                authorize.accept(Response.genBadRequestResponse("Incorrect 'user' parameter"));
+                return;
+            }
+
+            if (!user.getToken().equals("")) {
+                authorize.accept(Response.genBadRequestResponse("Incorrect 'user' parameter"));
                 return;
             }
 

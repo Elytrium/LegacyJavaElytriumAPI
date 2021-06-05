@@ -7,9 +7,10 @@ import ru.elytrium.host.api.model.net.YamlNetException;
 import ru.elytrium.host.api.model.net.YamlNetRequest;
 import ru.elytrium.host.api.model.user.User;
 
+import java.time.Instant;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public class TopUpMethod {
     private String name;
@@ -36,10 +37,20 @@ public class TopUpMethod {
 
     public PendingPurchase requestTopUp(User user, int amount) {
         try {
+            String topUpId = String.valueOf(UUID.randomUUID());
+            createRequest.doRequest(
+                ImmutableMap.of(
+                    "{topUpId}", topUpId,
+                    "{amount}", String.valueOf(amount),
+                    "{user_name}", user.getEmail(),
+                    "{balance_id}", user.getBalance().getUuid().toString(),
+                    "{date}", Instant.now().plusMillis(ttl).toString()
+                )
+            );
             return new PendingPurchase(
                     user.getBalance(),
                     amount,
-                    createRequest.doRequest(new HashMap<>()).get(0),
+                    topUpId,
                     new Date(new Date().getTime() + ttl),
                     this);
         } catch (YamlNetException e) {
@@ -53,7 +64,7 @@ public class TopUpMethod {
         try {
             List<String> response = checkRequest.doRequest(
                     ImmutableMap.of(
-                    "topUpId", purchase.getTopUpId()
+                    "{topUpId}", purchase.getTopUpId()
                 )
             );
 

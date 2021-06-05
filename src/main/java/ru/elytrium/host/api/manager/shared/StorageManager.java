@@ -7,6 +7,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import ru.elytrium.host.api.ElytraHostAPI;
 
 import java.io.File;
 import java.io.InputStream;
@@ -26,6 +27,8 @@ public class StorageManager {
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .build();
+
+        ElytraHostAPI.getLogger().info("StorageManager: connected to " + endpoint);
     }
 
     public URL getDownloadLink(String bucketName, String path, Date expiration) {

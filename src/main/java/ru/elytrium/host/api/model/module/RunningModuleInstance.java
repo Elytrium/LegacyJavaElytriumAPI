@@ -66,11 +66,6 @@ public class RunningModuleInstance {
         ElytraHostAPI.getDatastore().save(this);
     }
 
-    @Override
-    public int hashCode() {
-        return uuid.hashCode();
-    }
-
     public Date getNextBillingCheckDate() {
         return nextBillingCheckDate;
     }

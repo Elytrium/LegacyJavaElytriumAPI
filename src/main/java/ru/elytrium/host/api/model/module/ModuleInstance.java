@@ -10,20 +10,14 @@ import ru.elytrium.host.api.ElytraHostAPI;
 import ru.elytrium.host.api.manager.shared.StorageManager;
 import ru.elytrium.host.api.model.balance.Balance;
 import ru.elytrium.host.api.model.module.billing.ModuleBilling;
-import ru.elytrium.host.api.model.module.params.ModuleConfigFile;
-import ru.elytrium.host.api.model.module.params.ModuleMount;
-import ru.elytrium.host.api.model.module.params.ModulePlugin;
-import ru.elytrium.host.api.model.module.params.ModuleVersion;
+import ru.elytrium.host.api.model.module.params.*;
 import ru.elytrium.host.api.model.user.User;
 import ru.elytrium.host.api.utils.VersionUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -111,7 +105,7 @@ public class ModuleInstance {
         finalConfigs.forEach(
             q -> {
                 try {
-                    String fullPathName = q.folder + q.fileName;
+                    String fullPathName = q.folder + q.filename;
                     InputStream inputFile = storageManager.getFile("elytrastatic", fullPathName);
                     File folder = new File(q.folder);
                     folder.mkdirs();
@@ -146,7 +140,7 @@ public class ModuleInstance {
         finalMounts.forEach(
                 q -> {
                     try {
-                        String folderPath = q.bucketDir.replace("{instance_id}", uuid.toString());
+                        String folderPath = q.bucketDir.replace("{module_id}", uuid.toString());
 
                         if (!q.isFile) {
                             new File(folderPath + q.filename + ".zip").delete();
@@ -166,7 +160,7 @@ public class ModuleInstance {
 
         finalConfigs.forEach(
                 q -> {
-                    String fullPathName = q.folder + q.fileName;
+                    String fullPathName = q.folder + q.filename;
                     File outputFile = new File(fullPathName);
                     q.serialize(version, outputFile);
                 }
@@ -222,12 +216,31 @@ public class ModuleInstance {
     }
 
     public void updateMeta(ModuleInstance instance) {
-        this.name = instance.getName();
-        this.version = instance.getVersion();
-        this.billing = instance.getBilling();
-        this.mountsOverrides = instance.getMountsOverrides();
-        this.configsOverrides = instance.getConfigsOverrides();
-        this.pluginsOverrides = instance.getPluginsOverrides();
+        if (instance.getName().length() < 64) {
+            this.name = instance.getName();
+        }
+
+        this.version = getModule().getAvailableVersions().stream()
+                .filter(e -> e.equals(instance.getVersion()))
+                .findFirst().orElse(this.version);
+        this.billing = getModule().getAvailableBillings().stream()
+                .filter(e -> e.equals(instance.getBilling()))
+                .findFirst().orElse(this.billing);
+
+        this.mountsOverrides = instance.getMountsOverrides()
+                .stream()
+                .map(this::proceedMountUpdate)
+                .collect(Collectors.toList());
+
+        this.configsOverrides = instance.getConfigsOverrides()
+                .stream()
+                .map(this::proceedConfigUpdate)
+                .collect(Collectors.toList());
+
+        this.pluginsOverrides = instance.getPluginsOverrides()
+                .stream()
+                .map(this::proceedPluginUpdate)
+                .collect(Collectors.toList());
 
         update();
     }
@@ -248,8 +261,50 @@ public class ModuleInstance {
         return false;
     }
 
-    @Override
-    public int hashCode() {
-        return uuid.hashCode();
+    private ModuleConfigFile proceedConfigUpdate(ModuleConfigFile q) {
+        Optional<ModuleConfigFile> configFileOptional = getModule().getConfigFiles().stream().filter(w -> w.filename.equals(q.filename)).findFirst();
+        if (configFileOptional.isPresent()) {
+            ModuleConfigFile configFile = configFileOptional.get();
+            configFile.configs = configFile.configs.stream()
+                .map(w -> {
+                    Optional<ModuleConfig> configOptional = q.configs.stream().filter(z -> z.name.equals(w.name)).findFirst();
+                    if (configOptional.isPresent()) {
+                        ModuleConfig config = configOptional.get();
+                        config.value = w.value;
+                        return config;
+                    }
+                    return null;
+                })
+                .collect(Collectors.toList());
+            return configFile;
+        }
+        return null;
+    }
+
+    private ModuleMount proceedMountUpdate(ModuleMount r) {
+        Optional<ModuleMount> mountOptional = getModule().getMountDefaults().stream().filter(q -> q.filename.equals(r.filename)).findFirst();
+        if (mountOptional.isPresent()) {
+            ModuleMount moduleMount = mountOptional.get();
+            if (!r.permanent)
+                moduleMount.enabled = r.enabled;
+            return moduleMount;
+        }
+        return null;
+    }
+
+    private ModulePlugin proceedPluginUpdate(ModulePlugin e) {
+        Optional<ModulePlugin> pluginOptional = getModule().getPluginDefaults().stream().filter(q -> q.displayName.equals(e.displayName)).findFirst();
+        if (pluginOptional.isPresent()) {
+            ModulePlugin modulePlugin = pluginOptional.get();
+            modulePlugin.configFiles = modulePlugin.configFiles.stream()
+                    .map(this::proceedConfigUpdate)
+                    .collect(Collectors.toList());
+            modulePlugin.mounts = modulePlugin.mounts.stream()
+                    .map(this::proceedMountUpdate)
+                    .collect(Collectors.toList());
+            modulePlugin.enabled = e.enabled;
+            return modulePlugin;
+        }
+        return null;
     }
 }

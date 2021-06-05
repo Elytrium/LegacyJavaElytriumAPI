@@ -1,5 +1,7 @@
 package ru.elytrium.host.api.manager.shared;
 
+import ru.elytrium.host.api.ElytraHostAPI;
+
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -14,6 +16,7 @@ public class TickManager extends TimerTask {
 
     public void register(String taskName, TickTask tickTask) {
         map.put(taskName, tickTask);
+        ElytraHostAPI.getLogger().info("TickManager: Loading TickTask " + taskName);
     }
 
     public void unregister(String task) {

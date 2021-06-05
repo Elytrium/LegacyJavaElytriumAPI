@@ -31,7 +31,7 @@ public class AuthorizedRequest {
 
         if (user == null) {
             reply.accept(
-                    Response.genBadRequestResponse("Wrong token (Неверный токен)")
+                    Response.genUnauthorizedResponse("Wrong token (Неверный токен)")
             );
         } else {
             proceedRequest(user, reply);
@@ -43,11 +43,11 @@ public class AuthorizedRequest {
             Types.valueOf(type).proceed(user, method, payload, reply);
         } catch (IllegalArgumentException e) {
             reply.accept(
-                    Response.genBadRequestResponse("Method not found")
+                    Response.genBadRequestResponse("Wrong method (неверный метод)")
             );
         }
         reply.accept(
-                Response.genBadRequestResponse("Method not found")
+                Response.genBadRequestResponse("Wrong method (неверный метод)")
         );
     }
 

@@ -2,6 +2,7 @@ package ru.elytrium.host.api.manager.shared;
 
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.introspector.BeanAccess;
 import ru.elytrium.host.api.ElytraHostAPI;
 
 import java.io.File;
@@ -17,16 +18,17 @@ public class ConfigManager<T> {
         File[] moduleFiles = directory.listFiles(File::isFile);
 
         if (moduleFiles == null) {
-            ElytraHostAPI.getLogger().warn("Manager: " + directory + " contains no elements");
+            ElytraHostAPI.getLogger().warn("ConfigManager: " + directory + " contains no elements");
             return;
         }
 
         Yaml yaml = new Yaml(new Constructor(tClass));
+        yaml.setBeanAccess(BeanAccess.FIELD);
         try {
             for (File moduleFile : moduleFiles) {
                 String itemName = moduleFile.getName().replaceFirst("[.][^.]+$", "");
                 items.put(itemName, yaml.load(new FileReader(moduleFile.getAbsoluteFile())));
-                ElytraHostAPI.getLogger().info("Manager: Loading  " + directory + "." + moduleFile.getName());
+                ElytraHostAPI.getLogger().info("ConfigManager: Loading " + directory + "/" + moduleFile.getName());
             }
         } catch (FileNotFoundException ignored) { }
     }

@@ -13,11 +13,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class SlaveListener implements HttpHandler {
+public class SlaveListener implements HttpHandler, Listener {
+    private final HttpServer server;
+
     public SlaveListener(String hostname, int port) throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(hostname, port), 0);
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
+        server = HttpServer.create(new InetSocketAddress(hostname, port), 0);
         server.createContext("/api", this);
         server.setExecutor(threadPoolExecutor);
         server.start();
@@ -26,13 +28,19 @@ public class SlaveListener implements HttpHandler {
     }
 
     @Override
+    public void stop() {
+        server.stop(0);
+    }
+
+    @Override
     public void handle(HttpExchange exchange) {
         SlaveRequest request = ElytraHostAPI.getGson().fromJson(new InputStreamReader(exchange.getRequestBody()), SlaveRequest.class);
         request.proceedRequest(ElytraHostAPI.getConfig().getMasterKey(), string -> {
             try {
                 OutputStream outputStream = exchange.getResponseBody();
-                exchange.sendResponseHeaders(200, string.length());
-                outputStream.write(string.getBytes(StandardCharsets.UTF_8));
+                byte[] answ = string.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(200, answ.length);
+                outputStream.write(answ);
                 outputStream.flush();
                 outputStream.close();
             } catch (IOException e) {

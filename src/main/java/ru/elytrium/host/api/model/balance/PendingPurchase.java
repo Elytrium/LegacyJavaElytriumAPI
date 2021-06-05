@@ -74,9 +74,4 @@ public class PendingPurchase {
         }
         return false;
     }
-
-    @Override
-    public int hashCode() {
-        return topUpId.hashCode();
-    }
 }

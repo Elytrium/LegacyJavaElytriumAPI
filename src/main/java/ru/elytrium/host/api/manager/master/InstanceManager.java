@@ -26,6 +26,8 @@ public class InstanceManager implements TickManager.TickTask {
 
         backends.addAll(autoExpandBackends.getAllItems());
         backends.addAll(staticBackends.getAllItems());
+
+        ElytraHostAPI.getLogger().info("InstanceManager: Loaded " + backends.size() + " backends");
     }
 
     public RunningModuleInstance runInstance(ModuleInstance instance) {
@@ -37,6 +39,15 @@ public class InstanceManager implements TickManager.TickTask {
                 break;
             }
         }
+
+        if (runningModuleInstance == null) {
+            ElytraHostAPI.getLogger().fatal("RunningModuleInstance is null for ModuleInstance#" + instance.getUuid());
+            return null;
+        }
+
+        instance.getBalance().withdraw(instance.getBilling().getAmount());
+        Date nextCheckDate = new Date(new Date().getTime() + instance.getBilling().getBillingType().getPeriod());
+        runningModuleInstance.setNextBillingCheckDate(nextCheckDate);
 
         return runningModuleInstance;
     }
