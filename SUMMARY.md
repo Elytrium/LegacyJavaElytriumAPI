@@ -4,6 +4,8 @@
 
 ## Open API
 
+* [Meta](open-api/meta.md)
+
 ## Client API
 
 * [User](client-api/user.md)
