@@ -6,5 +6,5 @@
 
 ## Client API
 
-* [Авторизация](client-api/avtorizaciya.md)
+* [User](client-api/user.md)
 

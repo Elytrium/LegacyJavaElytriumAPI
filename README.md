@@ -33,7 +33,7 @@ ElytraHost разрешает только три варианта пользо�
 
 ## Пример запроса к API
 
-{% api-method method="get" host="https://api.elytrahost.ru" path="/v1/:type/:method/:id" %}
+{% api-method method="post" host="https://api.elytrahost.ru" path="/v1/:type/:method/" %}
 {% api-method-summary %}
 Пример
 {% endapi-method-summary %}
@@ -45,10 +45,6 @@ ElytraHost разрешает только три варианта пользо�
 {% api-method-spec %}
 {% api-method-request %}
 {% api-method-path-parameters %}
-{% api-method-parameter name="id" type="string" required=false %}
-ID управляемого объекта
-{% endapi-method-parameter %}
-
 {% api-method-parameter name="type" type="string" required=true %}
 Тип API, например auth
 {% endapi-method-parameter %}
