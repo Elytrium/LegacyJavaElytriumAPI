@@ -5,14 +5,24 @@ import java.lang.reflect.Field;
 public class Config {
     public UsageCase usageCase;
 
-    private String log_level;
-    private String master_key;
-    private String bucket_link;
-    private String access_key;
-    private String secret_link;
-    private String wss_host;
-    private String wss_port;
-    private String db_host;
+    private String logLevel;
+    private String masterKey;
+    private String bucketEndpoint;
+    private String bucketRegion;
+    private String accessKey;
+    private String secretKey;
+    private String apiHostname;
+    private String apiPort;
+    private String dbHost;
+    private String dbName;
+    private String mailFrom;
+    private String mailRegSubject;
+    private String mailRegBody;
+    private String mailSendgridKey;
+    private int tickInterval;
+
+    public Config() {
+    }
 
     public void fillConfig(String[] args) throws NoSuchFieldException, IllegalAccessException {
         for (Field field : Config.class.getFields()) {
@@ -26,36 +36,64 @@ public class Config {
         }
     }
 
-    public String getLog_level() {
-        return log_level;
+    public String getLogLevel() {
+        return logLevel;
     }
 
-    public String getMaster_key() {
-        return master_key;
+    public String getMasterKey() {
+        return masterKey;
     }
 
-    public String getBucket_link() {
-        return bucket_link;
+    public String getBucketEndpoint() {
+        return bucketEndpoint;
     }
 
-    public String getAccess_key() {
-        return access_key;
+    public String getAccessKey() {
+        return accessKey;
     }
 
-    public String getSecret_link() {
-        return secret_link;
+    public String getSecretKey() {
+        return secretKey;
     }
 
-    public String getWss_host() {
-        return wss_host;
+    public String getApiHostname() {
+        return apiHostname;
     }
 
-    public String getWss_port() {
-        return wss_port;
+    public String getApiPort() {
+        return apiPort;
     }
 
-    public String getDb_host() {
-        return db_host;
+    public String getDbHost() {
+        return dbHost;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public String getMailFrom() {
+        return mailFrom;
+    }
+
+    public String getMailRegSubject() {
+        return mailRegSubject;
+    }
+
+    public String getMailRegBody() {
+        return mailRegBody;
+    }
+
+    public String getMailSendgridKey() {
+        return mailSendgridKey;
+    }
+
+    public int getTickInterval() {
+        return tickInterval;
+    }
+
+    public String getBucketRegion() {
+        return bucketRegion;
     }
 
     public enum UsageCase {

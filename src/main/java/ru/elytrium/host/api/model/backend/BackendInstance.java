@@ -10,6 +10,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import ru.elytrium.host.api.ElytraHostAPI;
 import ru.elytrium.host.api.model.module.ModuleInstance;
+import ru.elytrium.host.api.model.module.RunningModuleInstance;
 import ru.elytrium.host.api.request.slave.SlaveRequest;
 
 import java.io.IOException;
@@ -17,33 +18,44 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public abstract class BackendInstance {
-    public abstract String runModuleInstance(ModuleInstance moduleInstance);
-    public abstract void pauseModuleInstance(ModuleInstance moduleInstance);
-    public abstract List<ModuleInstance> listModuleInstance(ModuleInstance moduleInstance);
 
-    public int sendInstanceRunRequest(String host, ModuleInstance instance) {
+    public abstract RunningModuleInstance runModuleInstance(ModuleInstance moduleInstance);
+
+    public abstract void pauseModuleInstance(ModuleInstance moduleInstance);
+
+    public abstract List<ModuleInstance> listModuleInstance();
+
+    public abstract int getLimit();
+
+    public int getRunningServers () {
+        return listModuleInstance().size();
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public static int sendInstanceRunRequest(String host, ModuleInstance instance) {
         String response = sendInstanceRequest(host, new SlaveRequest(
-                ElytraHostAPI.getConfig().getMaster_key(),
+                ElytraHostAPI.getConfig().getMasterKey(),
                 "INSTANCE",
                 "RUN",
                 ElytraHostAPI.getGson().toJson(instance)
         ));
 
-        return Integer.parseInt(response);
+        return (response == null)? null : Integer.parseInt(response);
     }
 
-    public void sendInstancePauseRequest(String host, ModuleInstance instance) {
+    public static void sendInstancePauseRequest(String host, ModuleInstance instance) {
         String response = sendInstanceRequest(host, new SlaveRequest(
-                ElytraHostAPI.getConfig().getMaster_key(),
+                ElytraHostAPI.getConfig().getMasterKey(),
                 "INSTANCE",
                 "PAUSE",
                 ElytraHostAPI.getGson().toJson(instance)
         ));
     }
 
-    public List<ModuleInstance> sendInstanceListRequest(String host) {
+    @SuppressWarnings("UnstableApiUsage")
+    public static List<ModuleInstance> sendInstanceListRequest(String host) {
         String response = sendInstanceRequest(host, new SlaveRequest(
-                ElytraHostAPI.getConfig().getMaster_key(),
+                ElytraHostAPI.getConfig().getMasterKey(),
                 "INSTANCE",
                 "LIST_RUNNING_INSTANCES",
                 ""
@@ -52,7 +64,7 @@ public abstract class BackendInstance {
         return ElytraHostAPI.getGson().fromJson(response, new TypeToken<List<ModuleInstance>>(){}.getType());
     }
 
-    public String sendInstanceRequest(String host, SlaveRequest request) {
+    public static String sendInstanceRequest(String host, SlaveRequest request) {
         try {
             String data = ElytraHostAPI.getGson().toJson(request);
 

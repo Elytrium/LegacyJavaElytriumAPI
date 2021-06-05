@@ -1,7 +1,9 @@
 package ru.elytrium.host.api.request.unauthorized.user;
 
+import ru.elytrium.host.api.model.captcha.Captcha;
+
 public class LoginRequest {
     public String email;
     public String password;
-    public String captcha;
+    public Captcha captcha;
 }

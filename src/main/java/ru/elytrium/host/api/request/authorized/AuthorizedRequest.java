@@ -1,7 +1,11 @@
 package ru.elytrium.host.api.request.authorized;
 
+import dev.morphia.query.experimental.filters.Filters;
+import ru.elytrium.host.api.ElytraHostAPI;
 import ru.elytrium.host.api.model.user.User;
+import ru.elytrium.host.api.request.Request;
 import ru.elytrium.host.api.request.RequestType;
+import ru.elytrium.host.api.request.Response;
 import ru.elytrium.host.api.request.authorized.balance.BalanceMethods;
 import ru.elytrium.host.api.request.authorized.instance.InstanceMethods;
 import ru.elytrium.host.api.request.authorized.user.UserMethods;
@@ -13,13 +17,38 @@ public class AuthorizedRequest {
     private String method;
     private String payload;
 
-    public boolean proceedRequest(User user, Consumer<String> reply) {
+    public AuthorizedRequest(Request request) {
+        type = request.getType();
+        method = request.getMethod();
+        payload = request.getPayload();
+    }
+
+    public void proceedRequest(String token, Consumer<Response> reply) {
+        User user = ElytraHostAPI.getDatastore()
+                .find(User.class)
+                .filter(Filters.eq("token", token))
+                .first();
+
+        if (user == null) {
+            reply.accept(
+                    Response.genBadRequestResponse("Wrong token (Неверный токен)")
+            );
+        } else {
+            proceedRequest(user, reply);
+        }
+    }
+
+    public void proceedRequest(User user, Consumer<Response> reply) {
         try {
             Types.valueOf(type).proceed(user, method, payload, reply);
         } catch (IllegalArgumentException e) {
-            return false;
+            reply.accept(
+                    Response.genBadRequestResponse("Method not found")
+            );
         }
-        return false;
+        reply.accept(
+                Response.genBadRequestResponse("Method not found")
+        );
     }
 
 
@@ -34,7 +63,7 @@ public class AuthorizedRequest {
             this.type = method;
         }
 
-        public void proceed(User user, String method, String payload, Consumer<String> send) {
+        public void proceed(User user, String method, String payload, Consumer<Response> send) {
             type.proceedRequest(user, method, payload, send);
         }
     }

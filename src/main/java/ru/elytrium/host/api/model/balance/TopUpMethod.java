@@ -2,6 +2,7 @@ package ru.elytrium.host.api.model.balance;
 
 import com.google.common.collect.ImmutableMap;
 import ru.elytrium.host.api.ElytraHostAPI;
+import ru.elytrium.host.api.model.Exclude;
 import ru.elytrium.host.api.model.net.YamlNetException;
 import ru.elytrium.host.api.model.net.YamlNetRequest;
 import ru.elytrium.host.api.model.user.User;
@@ -11,16 +12,32 @@ import java.util.HashMap;
 import java.util.List;
 
 public class TopUpMethod {
-    public long ttl;
-    public YamlNetRequest createRequest;
-    public YamlNetRequest checkRequest;
-    public String checkRequestSuccessString;
-    public YamlNetRequest rejectRequest;
+    private String name;
+
+    private String displayName;
+
+    @Exclude
+    private long ttl;
+
+    @Exclude
+    private String payString;
+
+    @Exclude
+    private YamlNetRequest createRequest;
+
+    @Exclude
+    private YamlNetRequest checkRequest;
+
+    @Exclude
+    private String checkRequestSuccessString;
+
+    @Exclude
+    private YamlNetRequest rejectRequest;
 
     public PendingPurchase requestTopUp(User user, int amount) {
         try {
             return new PendingPurchase(
-                    user,
+                    user.getBalance(),
                     amount,
                     createRequest.doRequest(new HashMap<>()).get(0),
                     new Date(new Date().getTime() + ttl),
@@ -36,7 +53,7 @@ public class TopUpMethod {
         try {
             List<String> response = checkRequest.doRequest(
                     ImmutableMap.of(
-                    "purchaseId", purchase.topUpId
+                    "topUpId", purchase.getTopUpId()
                 )
             );
 
@@ -52,12 +69,20 @@ public class TopUpMethod {
         try {
             rejectRequest.doRequest(
                 ImmutableMap.of(
-                        "purchaseId", purchase.topUpId
+                        "topUpId", purchase.getTopUpId()
                 )
             );
         } catch (YamlNetException e) {
             ElytraHostAPI.getLogger().fatal("Error while creating RejectPurchaseRequest");
             ElytraHostAPI.getLogger().fatal(e);
         }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPayString(String topUpId) {
+        return payString.replace("{topUpId}", topUpId);
     }
 }

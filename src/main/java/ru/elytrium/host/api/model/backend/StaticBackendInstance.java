@@ -1,8 +1,10 @@
 package ru.elytrium.host.api.model.backend;
 
 import ru.elytrium.host.api.model.module.ModuleInstance;
+import ru.elytrium.host.api.model.module.RunningModuleInstance;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class StaticBackendInstance extends BackendInstance {
@@ -13,16 +15,29 @@ public class StaticBackendInstance extends BackendInstance {
     private final HashMap<UUID, ModuleInstance> runningInstances = new HashMap<>();
 
     @Override
-    public String runModuleInstance(ModuleInstance moduleInstance) {
+    public RunningModuleInstance runModuleInstance(ModuleInstance moduleInstance) {
         if (runningInstances.size() >= limitServers) {
             return null;
         }
 
-        return String.format("%s:%d", hostname, sendInstanceRunRequest(String.format("%s:%s", hostname, port), moduleInstance));
+        String apiHost = hostname + ":" + port;
+        String port = hostname + ":" + sendInstanceRunRequest(apiHost, moduleInstance);
+
+        return new RunningModuleInstance(apiHost, moduleInstance, port);
     }
 
     @Override
     public void pauseModuleInstance(ModuleInstance moduleInstance) {
-        sendInstancePauseRequest(String.format("%s:%s", hostname, port), moduleInstance);
+        sendInstancePauseRequest(hostname + ":" + port, moduleInstance);
+    }
+
+    @Override
+    public List<ModuleInstance> listModuleInstance() {
+        return sendInstanceListRequest(hostname + ":" + port);
+    }
+
+    @Override
+    public int getLimit() {
+        return limitServers;
     }
 }

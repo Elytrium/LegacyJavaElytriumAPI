@@ -1,7 +1,5 @@
 package ru.elytrium.host.api;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -30,7 +28,7 @@ public class SlaveListener implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) {
         SlaveRequest request = ElytraHostAPI.getGson().fromJson(new InputStreamReader(exchange.getRequestBody()), SlaveRequest.class);
-        request.proceedRequest(ElytraHostAPI.getConfig().getMaster_key(), string -> {
+        request.proceedRequest(ElytraHostAPI.getConfig().getMasterKey(), string -> {
             try {
                 OutputStream outputStream = exchange.getResponseBody();
                 exchange.sendResponseHeaders(200, string.length());

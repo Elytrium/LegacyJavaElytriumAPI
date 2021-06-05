@@ -49,6 +49,7 @@ public class ContainerManager {
         return 30000 + (10 * getRunningServers()) + portMultiplier;
     }
 
+    @SuppressWarnings("deprecation")
     public int runInstance(ModuleInstance instance) {
         int bindPort = genPort(0);
 
@@ -57,7 +58,7 @@ public class ContainerManager {
             .withPortBindings(
                 new PortBinding(
                     Ports.Binding.bindPort(bindPort),
-                    new ExposedPort(instance.bindPort, InternetProtocol.TCP)
+                    new ExposedPort(instance.getModule().getBindPort(), InternetProtocol.TCP)
                 )
             )
             .withBinds(
@@ -65,18 +66,20 @@ public class ContainerManager {
                     .map(e -> new Bind(e.bucketDir, new Volume(e.containerDir)))
                     .collect(Collectors.toList())
             )
-            .withName(String.valueOf(instance.uuid))
+            .withName(String.valueOf(instance.getUuid()))
             .exec().getId();
 
-        runningInstances.put(instance.uuid, instance);
+        runningInstances.put(instance.getUuid(), instance);
 
         dockerClient.startContainerCmd(containerId).exec();
         return bindPort;
     }
 
     public void pauseInstance(ModuleInstance instance) {
-        dockerClient.stopContainerCmd(String.valueOf(instance.uuid)).exec();
-        runningInstances.remove(instance.uuid);
+        dockerClient.stopContainerCmd(String.valueOf(instance.getUuid())).exec();
+        runningInstances.remove(instance.getUuid());
+
+        instance.saveMount();
     }
 
     public List<ModuleInstance> listRunningInstances() {
