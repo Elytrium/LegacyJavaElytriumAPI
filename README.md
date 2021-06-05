@@ -56,7 +56,7 @@ ElytraHost разрешает только три варианта пользо�
 
 {% api-method-headers %}
 {% api-method-parameter name="Authorization" type="string" required=false %}
-Токен клиента
+Bearer Токен клиента
 {% endapi-method-parameter %}
 {% endapi-method-headers %}
 {% endapi-method-request %}

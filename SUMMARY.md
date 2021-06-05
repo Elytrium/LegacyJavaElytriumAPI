@@ -7,4 +7,6 @@
 ## Client API
 
 * [User](client-api/user.md)
+* [Instance](client-api/instance.md)
+* [Balance](client-api/balance.md)
 
