@@ -2,6 +2,7 @@ package ru.elytrium.host.api;
 
 import java.lang.reflect.Field;
 
+@SuppressWarnings("FieldMayBeFinal")
 public class Config {
     private UsageCase usageCase;
 
@@ -20,6 +21,10 @@ public class Config {
     private String mailRegBody;
     private String mailSendgridKey;
     private int tickInterval;
+    private boolean doTimerTasks = true;
+    private String registryUrl;
+    private String registryUser;
+    private String registryPassword;
 
     public Config() {
     }
@@ -98,6 +103,22 @@ public class Config {
 
     public UsageCase getUsageCase() {
         return usageCase;
+    }
+
+    public boolean isDoTimerTasks() {
+        return doTimerTasks;
+    }
+
+    public String getRegistryUrl() {
+        return registryUrl;
+    }
+
+    public String getRegistryUser() {
+        return registryUser;
+    }
+
+    public String getRegistryPassword() {
+        return registryPassword;
     }
 
     public enum UsageCase {

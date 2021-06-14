@@ -2,15 +2,13 @@ package ru.elytrium.host.api.manager.master;
 
 import dev.morphia.query.experimental.filters.Filters;
 import ru.elytrium.host.api.ElytraHostAPI;
-import ru.elytrium.host.api.manager.shared.ConfigManager;
 import ru.elytrium.host.api.manager.shared.TickManager;
 import ru.elytrium.host.api.model.backend.AutoExpandBackendInstance;
+import ru.elytrium.host.api.model.backend.AutoExpandInstruction;
 import ru.elytrium.host.api.model.backend.BackendInstance;
-import ru.elytrium.host.api.model.backend.StaticBackendInstance;
 import ru.elytrium.host.api.model.module.ModuleInstance;
 import ru.elytrium.host.api.model.module.RunningModuleInstance;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,16 +19,20 @@ public class InstanceManager implements TickManager.TickTask {
     public InstanceManager() {
         backends = new ArrayList<>();
 
-        ConfigManager<AutoExpandBackendInstance> autoExpandBackends = new ConfigManager<>(AutoExpandBackendInstance.class, new File("backend/autoexpand"));
-        ConfigManager<StaticBackendInstance> staticBackends = new ConfigManager<>(StaticBackendInstance.class, new File("backend/static"));
+        backends.addAll(ElytraHostAPI.getStaticBackends().getAllItems());
+        ElytraHostAPI.getDatastore().find(AutoExpandBackendInstance.class).forEach(backends::add);
 
-        backends.addAll(autoExpandBackends.getAllItems());
-        backends.addAll(staticBackends.getAllItems());
+        backends.forEach(BackendInstance::onInit);
 
         ElytraHostAPI.getLogger().info("InstanceManager: Loaded " + backends.size() + " backends");
     }
 
     public RunningModuleInstance runInstance(ModuleInstance instance) {
+        if (instance.getBilling().getAmount() > instance.getBalance().getAmount()) {
+            ElytraHostAPI.getLogger().trace("InstanceManager: Insufficient funds for ModuleInstance#" + instance.getUuid());
+            return null;
+        }
+
         RunningModuleInstance runningModuleInstance = null;
 
         for (BackendInstance backend : backends) {
@@ -41,8 +43,10 @@ public class InstanceManager implements TickManager.TickTask {
         }
 
         if (runningModuleInstance == null) {
-            ElytraHostAPI.getLogger().fatal("RunningModuleInstance is null for ModuleInstance#" + instance.getUuid());
-            return null;
+            ElytraHostAPI.getLogger().info("InstanceManager: All backend instances are busy, buying new one");
+
+            BackendInstance backend = buyBackend(instance.getTariff());
+            runningModuleInstance = backend.runModuleInstance(instance);
         }
 
         instance.getBalance().withdraw(instance.getBilling().getAmount());
@@ -55,7 +59,7 @@ public class InstanceManager implements TickManager.TickTask {
     public void pauseInstance(ModuleInstance instance) {
         RunningModuleInstance runningModuleInstance = ElytraHostAPI.getDatastore()
                 .find(RunningModuleInstance.class)
-                .filter(Filters.eq("moduleInstance", instance))
+                .filter(Filters.eq("moduleInstance.uuid", instance.getUuid()))
                 .first();
 
         if (runningModuleInstance != null) {
@@ -65,6 +69,11 @@ public class InstanceManager implements TickManager.TickTask {
 
     @Override
     public void onTick() {
+        doBillingTasks();
+        doAutoExpandExpirationTasks();
+    }
+
+    private void doBillingTasks() {
         List<ModuleInstance> moduleInstances = new ArrayList<>();
         backends.forEach(e -> moduleInstances.addAll(e.listModuleInstance()));
 
@@ -83,6 +92,17 @@ public class InstanceManager implements TickManager.TickTask {
                 }
             }
         });
+    }
+
+    private void doAutoExpandExpirationTasks() {
+        ElytraHostAPI.getDatastore().find(AutoExpandBackendInstance.class).forEach(AutoExpandBackendInstance::tryDelete);
+    }
+
+    private BackendInstance buyBackend(String tariff) {
+        AutoExpandInstruction instruction = ElytraHostAPI.getAutoExpandInstructions().getRandomItem();
+        BackendInstance newInstance = instruction.createInstance(tariff);
+        backends.add(newInstance);
+        return newInstance;
     }
 
 }

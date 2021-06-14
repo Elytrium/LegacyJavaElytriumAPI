@@ -14,9 +14,9 @@ public class RunningModuleInstance {
 
     private UUID uuid;
 
-    private String backendHost;
+    private String apiHost;
 
-    private String port;
+    private String moduleInstanceAddress;
 
     private Date nextBillingCheckDate;
 
@@ -25,29 +25,30 @@ public class RunningModuleInstance {
 
     public RunningModuleInstance() {}
 
-    public RunningModuleInstance(String backendHost, ModuleInstance moduleInstance, String port) {
+    public RunningModuleInstance(String apiHost, ModuleInstance moduleInstance, String moduleInstanceAddress) {
         this.uuid = UUID.randomUUID();
-        this.backendHost = backendHost;
+        this.apiHost = apiHost;
         this.moduleInstance = moduleInstance;
-        this.port = port;
+        this.moduleInstanceAddress = moduleInstanceAddress;
         this.nextBillingCheckDate = new Date();
+        update();
     }
 
-    public String getBackendHost() {
-        return backendHost;
+    public String getApiHost() {
+        return apiHost;
     }
 
     public ModuleInstance getModuleInstance() {
         return moduleInstance;
     }
 
-    public String getPort() {
-        return port;
+    public String getModuleInstanceAddress() {
+        return moduleInstanceAddress;
     }
 
     public void pause() {
-        BackendInstance.sendInstancePauseRequest(backendHost, moduleInstance);
-        ElytraHostAPI.getDatastore().find(RunningModuleInstance.class).filter(Filters.eq("uuid", uuid)).delete();
+        BackendInstance.sendInstancePauseRequest(apiHost, moduleInstance);
+        delete();
     }
 
     @Override
@@ -64,6 +65,10 @@ public class RunningModuleInstance {
 
     public void update() {
         ElytraHostAPI.getDatastore().save(this);
+    }
+
+    public void delete() {
+        ElytraHostAPI.getDatastore().find(RunningModuleInstance.class).filter(Filters.eq("uuid", uuid)).delete();
     }
 
     public Date getNextBillingCheckDate() {

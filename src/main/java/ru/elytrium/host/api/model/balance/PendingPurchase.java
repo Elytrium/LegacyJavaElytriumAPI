@@ -3,6 +3,7 @@ package ru.elytrium.host.api.model.balance;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 import dev.morphia.annotations.Reference;
+import dev.morphia.query.experimental.filters.Filters;
 import ru.elytrium.host.api.ElytraHostAPI;
 import ru.elytrium.host.api.model.Exclude;
 
@@ -31,6 +32,7 @@ public class PendingPurchase {
         this.topUpId = topUpId;
         this.invalidationDate = invalidationDate;
         this.method = method.getName();
+        update();
     }
 
     public String getTopUpId() {
@@ -58,9 +60,21 @@ public class PendingPurchase {
     }
 
     public void proceed() {
+        if (getInvalidationDate().getTime() <= new Date().getTime()) {
+            delete();
+        }
         if (validate()) {
             balance.topUp(amount);
+            delete();
         }
+    }
+
+    public void update() {
+        ElytraHostAPI.getDatastore().save(this);
+    }
+
+    public void delete() {
+        ElytraHostAPI.getDatastore().find(PendingPurchase.class).filter(Filters.eq("topUpId", topUpId)).delete();
     }
 
     @Override

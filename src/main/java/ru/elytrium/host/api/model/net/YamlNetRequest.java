@@ -86,10 +86,10 @@ public class YamlNetRequest {
 
     public String toString() {
         return "YamlTopUpRequest{requestURL=" + requestURL
-                + ";requestData" + requestData
-                + ";requestMethod" + requestMethod
-                + ";requestHeaders" + requestHeaders
-                + ";responseType" + responseType + "}";
+                + ";requestData=" + requestData
+                + ";requestMethod=" + requestMethod
+                + ";requestHeaders=" + requestHeaders
+                + ";responseType=" + responseType + "}";
     }
 
     public enum HTTPMethod {

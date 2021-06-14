@@ -39,15 +39,19 @@ public class ModuleInstance {
 
     private ModuleBilling billing;
 
+    private String tariff;
+
     private List<ModuleMount> mountsOverrides;
 
-    private List<ModuleConfigFile> configsOverrides;
+    private List<ModuleConfigFile> configFilesOverrides;
+
+    private List<ModuleConfig> configsOverrides;
 
     private List<ModulePlugin> pluginsOverrides;
 
     public ModuleInstance() {}
 
-    public ModuleInstance(User mainUser, String moduleName, ModuleVersion version, ModuleBilling billing, String name) {
+    public ModuleInstance(User mainUser, String moduleName, ModuleVersion version, ModuleBilling billing, String tariff, String name) {
         this.uuid = UUID.randomUUID();
         this.balance = mainUser.getBalance();
         this.allowedUsers = Collections.singletonList(mainUser.getUuid());
@@ -55,9 +59,11 @@ public class ModuleInstance {
         this.name = name;
         this.version = version;
         this.billing = billing;
+        this.tariff = tariff;
         this.mountsOverrides = new ArrayList<>();
-        this.configsOverrides = new ArrayList<>();
+        this.configFilesOverrides = new ArrayList<>();
         this.pluginsOverrides = new ArrayList<>();
+        update();
     }
 
     public String getContainerId() {
@@ -68,7 +74,7 @@ public class ModuleInstance {
     public List<ModuleMount> getMountAndDownload() {
         List<ModuleMount> finalMounts = mountsOverrides.stream().filter(e -> e.enabled).collect(Collectors.toList());
 
-        List<ModuleConfigFile> finalConfigs = new ArrayList<>(configsOverrides);
+        List<ModuleConfigFile> finalConfigs = new ArrayList<>(configFilesOverrides);
 
         pluginsOverrides.stream()
             .filter(e -> e.enabled)
@@ -191,8 +197,12 @@ public class ModuleInstance {
         return mountsOverrides;
     }
 
-    public List<ModuleConfigFile> getConfigsOverrides() {
+    public List<ModuleConfig> getConfigsOverrides() {
         return configsOverrides;
+    }
+
+    public List<ModuleConfigFile> getConfigFilesOverrides() {
+        return configFilesOverrides;
     }
 
     public List<ModulePlugin> getPluginsOverrides() {
@@ -211,7 +221,7 @@ public class ModuleInstance {
         return allowedUsers;
     }
 
-    public void remove() {
+    public void delete() {
         ElytraHostAPI.getDatastore().find(ModuleInstance.class).filter(Filters.eq("uuid", uuid)).delete();
     }
 
@@ -232,9 +242,14 @@ public class ModuleInstance {
                 .map(this::proceedMountUpdate)
                 .collect(Collectors.toList());
 
+        this.configFilesOverrides = instance.getConfigFilesOverrides()
+                .stream()
+                .map(this::proceedConfigFileUpdate)
+                .collect(Collectors.toList());
+
         this.configsOverrides = instance.getConfigsOverrides()
                 .stream()
-                .map(this::proceedConfigUpdate)
+                .map(w -> proceedConfigUpdate(w, getModule().getConfigDefaults()))
                 .collect(Collectors.toList());
 
         this.pluginsOverrides = instance.getPluginsOverrides()
@@ -261,22 +276,24 @@ public class ModuleInstance {
         return false;
     }
 
-    private ModuleConfigFile proceedConfigUpdate(ModuleConfigFile q) {
+    private ModuleConfigFile proceedConfigFileUpdate(ModuleConfigFile q) {
         Optional<ModuleConfigFile> configFileOptional = getModule().getConfigFiles().stream().filter(w -> w.filename.equals(q.filename)).findFirst();
         if (configFileOptional.isPresent()) {
             ModuleConfigFile configFile = configFileOptional.get();
             configFile.configs = configFile.configs.stream()
-                .map(w -> {
-                    Optional<ModuleConfig> configOptional = q.configs.stream().filter(z -> z.name.equals(w.name)).findFirst();
-                    if (configOptional.isPresent()) {
-                        ModuleConfig config = configOptional.get();
-                        config.value = w.value;
-                        return config;
-                    }
-                    return null;
-                })
+                .map(w -> proceedConfigUpdate(w, q.configs))
                 .collect(Collectors.toList());
             return configFile;
+        }
+        return null;
+    }
+
+    private ModuleConfig proceedConfigUpdate(ModuleConfig w, List<ModuleConfig> configs) {
+        Optional<ModuleConfig> configOptional = configs.stream().filter(z -> z.name.equals(w.name)).findFirst();
+        if (configOptional.isPresent()) {
+            ModuleConfig config = configOptional.get();
+            config.value = w.value;
+            return config;
         }
         return null;
     }
@@ -297,7 +314,7 @@ public class ModuleInstance {
         if (pluginOptional.isPresent()) {
             ModulePlugin modulePlugin = pluginOptional.get();
             modulePlugin.configFiles = modulePlugin.configFiles.stream()
-                    .map(this::proceedConfigUpdate)
+                    .map(this::proceedConfigFileUpdate)
                     .collect(Collectors.toList());
             modulePlugin.mounts = modulePlugin.mounts.stream()
                     .map(this::proceedMountUpdate)
@@ -306,5 +323,9 @@ public class ModuleInstance {
             return modulePlugin;
         }
         return null;
+    }
+
+    public String getTariff() {
+        return tariff;
     }
 }

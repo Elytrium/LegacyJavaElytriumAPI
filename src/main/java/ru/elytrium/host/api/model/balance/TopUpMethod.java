@@ -80,7 +80,7 @@ public class TopUpMethod {
         try {
             rejectRequest.doRequest(
                 ImmutableMap.of(
-                        "topUpId", purchase.getTopUpId()
+                        "{topUpId}", purchase.getTopUpId()
                 )
             );
         } catch (YamlNetException e) {

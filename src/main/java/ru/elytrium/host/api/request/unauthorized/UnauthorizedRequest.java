@@ -67,10 +67,6 @@ public class UnauthorizedRequest {
 
         public static void loginViaLinkedAccount(String payload, Consumer<Response> authorize) {
             LoginViaLinkedAccountRequest request = ElytraHostAPI.getGson().fromJson(payload, LoginViaLinkedAccountRequest.class);
-            if (!request.captcha.validate()) {
-                authorize.accept(Response.genBadRequestResponse("Incorrect 'captcha' parameter"));
-                return;
-            }
 
             LinkedAccountType linkedAccountType = ElytraHostAPI.getLinkedAccountTypes().getItem(request.linkedAccountType);
             LinkedAccount linkedAccount = linkedAccountType.toLinkedAccount(request.token);

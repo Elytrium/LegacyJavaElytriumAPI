@@ -15,36 +15,70 @@ import ru.elytrium.host.api.request.slave.SlaveRequest;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public abstract class BackendInstance {
+    private String hostname;
+    private String apiPort;
+    private int limitServers;
+    private List<String> availableTariffs;
 
-    public abstract RunningModuleInstance runModuleInstance(ModuleInstance moduleInstance);
+    private final HashMap<UUID, ModuleInstance> runningModuleInstances = new HashMap<>();
 
-    public abstract void pauseModuleInstance(ModuleInstance moduleInstance);
+    public abstract void onInit();
+    public abstract void tryDelete();
 
-    public abstract List<ModuleInstance> listModuleInstance();
+    public void onInit(String hostname, String apiPort, int limitServers, List<String> availableTariffs) {
+        this.hostname = hostname;
+        this.apiPort = apiPort;
+        this.limitServers = limitServers;
+        this.availableTariffs = availableTariffs;
 
-    public abstract int getLimit();
+        ElytraHostAPI.getLogger().info("BackendInstance: Loading " + hostname);
+    }
+
+    public RunningModuleInstance runModuleInstance(ModuleInstance moduleInstance) {
+        if (runningModuleInstances.size() >= limitServers || !availableTariffs.contains(moduleInstance.getTariff())) {
+            return null;
+        }
+
+        return sendInstanceRunRequest(hostname, apiPort, moduleInstance);
+    }
+
+    public void pauseModuleInstance(ModuleInstance moduleInstance) {
+        sendInstancePauseRequest(hostname + ":" + apiPort, moduleInstance);
+    }
+
+    public List<ModuleInstance> listModuleInstance() {
+        return sendInstanceListRequest(hostname + ":" + apiPort);
+    }
+
+    public int getLimit() {
+        return limitServers;
+    }
 
     public int getRunningServers () {
         return listModuleInstance().size();
     }
 
     @SuppressWarnings("ConstantConditions")
-    public static int sendInstanceRunRequest(String host, ModuleInstance instance) {
-        String response = sendInstanceRequest(host, new SlaveRequest(
+    public static RunningModuleInstance sendInstanceRunRequest(String hostname, String apiPort, ModuleInstance instance) {
+        String apiHost = hostname + ":" + apiPort;
+        String response = sendInstanceRequest(apiHost, new SlaveRequest(
                 ElytraHostAPI.getConfig().getMasterKey(),
                 "INSTANCE",
                 "RUN",
                 ElytraHostAPI.getGson().toJson(instance)
         ));
 
-        return (response == null)? null : Integer.parseInt(response);
+        String moduleInstanceAddress = hostname + ":" + Integer.parseInt(response);
+        return new RunningModuleInstance(apiHost, instance, moduleInstanceAddress);
     }
 
-    public static void sendInstancePauseRequest(String host, ModuleInstance instance) {
-        String response = sendInstanceRequest(host, new SlaveRequest(
+    public static void sendInstancePauseRequest(String apiHost, ModuleInstance instance) {
+        String response = sendInstanceRequest(apiHost, new SlaveRequest(
                 ElytraHostAPI.getConfig().getMasterKey(),
                 "INSTANCE",
                 "PAUSE",
@@ -53,8 +87,8 @@ public abstract class BackendInstance {
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    public static List<ModuleInstance> sendInstanceListRequest(String host) {
-        String response = sendInstanceRequest(host, new SlaveRequest(
+    public static List<ModuleInstance> sendInstanceListRequest(String apiHost) {
+        String response = sendInstanceRequest(apiHost, new SlaveRequest(
                 ElytraHostAPI.getConfig().getMasterKey(),
                 "INSTANCE",
                 "LIST_RUNNING_INSTANCES",
@@ -64,12 +98,12 @@ public abstract class BackendInstance {
         return ElytraHostAPI.getGson().fromJson(response, new TypeToken<List<ModuleInstance>>(){}.getType());
     }
 
-    public static String sendInstanceRequest(String host, SlaveRequest request) {
+    public static String sendInstanceRequest(String apiHost, SlaveRequest request) {
         try {
             String data = ElytraHostAPI.getGson().toJson(request);
 
             CloseableHttpClient httpClient = HttpClients.createDefault();
-            HttpPost post = new HttpPost("http://" + host + "/api");
+            HttpPost post = new HttpPost("http://" + apiHost + "/api");
             post.setEntity(new StringEntity(data, ContentType.APPLICATION_JSON));
             CloseableHttpResponse httpResponse = httpClient.execute(post);
 

@@ -25,6 +25,7 @@ public class Balance {
         this.uuid = UUID.randomUUID();
         this.amount = 0;
         this.pendingPurchases = new ArrayList<>();
+        update();
     }
 
     public int getAmount() {

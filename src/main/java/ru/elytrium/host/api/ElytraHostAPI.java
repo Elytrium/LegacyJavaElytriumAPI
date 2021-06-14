@@ -21,6 +21,8 @@ import ru.elytrium.host.api.manager.shared.ConfigManager;
 import ru.elytrium.host.api.manager.shared.StorageManager;
 import ru.elytrium.host.api.manager.shared.TickManager;
 import ru.elytrium.host.api.model.Exclude;
+import ru.elytrium.host.api.model.backend.AutoExpandInstruction;
+import ru.elytrium.host.api.model.backend.StaticBackendInstance;
 import ru.elytrium.host.api.model.balance.TopUpMethod;
 import ru.elytrium.host.api.model.captcha.CaptchaBackend;
 import ru.elytrium.host.api.model.module.Module;
@@ -29,6 +31,7 @@ import ru.elytrium.host.api.model.user.LinkedAccountType;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -57,6 +60,8 @@ public class ElytraHostAPI {
     private static ConfigManager<LinkedAccountType> linkedAccountTypes;
     private static ConfigManager<TopUpMethod> topUpMethods;
     private static ConfigManager<CaptchaBackend> captchaBackends;
+    private static ConfigManager<AutoExpandInstruction> autoExpandInstructions;
+    private static ConfigManager<StaticBackendInstance> staticBackends;
     private static Config config;
     private static Datastore datastore;
     private static SendGrid sendGrid;
@@ -64,6 +69,7 @@ public class ElytraHostAPI {
     private static TickManager tickManager;
     private static StorageManager storageManager;
     private static Listener listener;
+    private static Random random;
 
     public static void main(String[] args) {
         ElytraHostAPI.args = args;
@@ -103,6 +109,8 @@ public class ElytraHostAPI {
             linkedAccountTypes = new ConfigManager<>(LinkedAccountType.class, new File("linkedAccount"));
             topUpMethods = new ConfigManager<>(TopUpMethod.class, new File("topUpMethods"));
             captchaBackends = new ConfigManager<>(CaptchaBackend.class, new File("captchaBackends"));
+            autoExpandInstructions = new ConfigManager<>(AutoExpandInstruction.class, new File("autoExpand"));
+            staticBackends = new ConfigManager<>(StaticBackendInstance.class, new File("backend"));
 
             datastore = Morphia.createDatastore(MongoClients.create(config.getDbHost()), config.getDbName());
             datastore.getMapper().mapPackage("ru.elytrium.host.api.model");
@@ -110,11 +118,13 @@ public class ElytraHostAPI {
             sendGrid = new SendGrid(System.getenv(config.getMailSendgridKey()));
             instanceManager = new InstanceManager();
 
-            tickManager = new TickManager(config.getTickInterval());
-            tickManager.unregister("InstanceManager");
-            tickManager.unregister("BalanceManager");
-            tickManager.register("InstanceManager", instanceManager);
-            tickManager.register("BalanceManager", new BalanceManager());
+            if (config.isDoTimerTasks()) {
+                tickManager = new TickManager(config.getTickInterval());
+                tickManager.unregister("InstanceManager");
+                tickManager.unregister("BalanceManager");
+                tickManager.register("InstanceManager", instanceManager);
+                tickManager.register("BalanceManager", new BalanceManager());
+            }
 
             storageManager = new StorageManager(
                     config.getBucketEndpoint(),
@@ -197,5 +207,17 @@ public class ElytraHostAPI {
 
     public static StorageManager getStorageManager() {
         return storageManager;
+    }
+
+    public static ConfigManager<AutoExpandInstruction> getAutoExpandInstructions() {
+        return autoExpandInstructions;
+    }
+
+    public static ConfigManager<StaticBackendInstance> getStaticBackends() {
+        return staticBackends;
+    }
+
+    public static Random getRandom() {
+        return random;
     }
 }

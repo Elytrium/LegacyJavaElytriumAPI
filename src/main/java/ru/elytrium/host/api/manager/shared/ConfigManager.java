@@ -1,5 +1,6 @@
 package ru.elytrium.host.api.manager.shared;
 
+import com.google.common.collect.Iterables;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
@@ -8,7 +9,10 @@ import ru.elytrium.host.api.ElytraHostAPI;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class ConfigManager<T> {
     private final Map<String, T> items;
@@ -47,5 +51,11 @@ public class ConfigManager<T> {
 
     public T getItem(String o) {
         return items.get(o);
+    }
+
+    public T getRandomItem() {
+        int size = items.size();
+        int cur = ElytraHostAPI.getRandom().nextInt(size - 1);
+        return Iterables.get(items.values(), cur);
     }
 }

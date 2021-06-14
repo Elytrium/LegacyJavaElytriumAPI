@@ -7,9 +7,12 @@ import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
+import org.apache.commons.io.IOUtils;
 import ru.elytrium.host.api.ElytraHostAPI;
 import ru.elytrium.host.api.model.module.ModuleInstance;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +26,9 @@ public class ContainerManager {
     public ContainerManager() {
         DockerClientConfig config = DefaultDockerClientConfig
             .createDefaultConfigBuilder()
+            .withRegistryUrl(ElytraHostAPI.getConfig().getRegistryUrl())
+            .withRegistryUsername(ElytraHostAPI.getConfig().getRegistryUser())
+            .withRegistryPassword(ElytraHostAPI.getConfig().getRegistryPassword())
             .build();
 
         DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
@@ -39,7 +45,11 @@ public class ContainerManager {
         try (DockerHttpClient.Response response = httpClient.execute(request)) {
             if (response.getStatusCode() != 200) {
                 ElytraHostAPI.getLogger().error("Docker: status code " + response.getStatusCode());
+                ElytraHostAPI.getLogger().error("Docker: " + IOUtils.toString(response.getBody(), StandardCharsets.UTF_8));
             }
+        } catch (IOException e) {
+            ElytraHostAPI.getLogger().fatal("Error while creating ContainerManager");
+            ElytraHostAPI.getLogger().fatal(e);
         }
 
         this.dockerClient = DockerClientImpl.getInstance(config, httpClient);

@@ -46,10 +46,14 @@ public class InstanceMethods extends RequestType {
         Module module = ElytraHostAPI.getModules().getItem(request.module);
         Optional<ModuleVersion> version = module.getAvailableVersions().stream().filter(e -> e.version.equals(request.version)).findFirst();
         Optional<ModuleBilling> billing = module.getAvailableBillings().stream().filter(e -> e.getBillingType().name().equals(request.billingPeriod)).findFirst();
+        Optional<String> tariff = module.getAvailableTariffs().stream().filter(request.tariff::equals).findFirst();
 
-        if (version.isPresent() && billing.isPresent()) {
-            ModuleInstance instance = new ModuleInstance(user, request.module, version.get(), billing.get(), request.name);
+        if (version.isPresent() && billing.isPresent() && tariff.isPresent()) {
+            ModuleInstance instance = new ModuleInstance(user, request.module, version.get(), billing.get(), tariff.get(), request.name);
             user.addInstance(instance);
+            send.accept(Response.genSuccessResponse(ElytraHostAPI.getGson().toJson(instance)));
+        } else {
+            send.accept(Response.genBadRequestResponse("Incorrect module description"));
         }
     }
 
@@ -63,7 +67,7 @@ public class InstanceMethods extends RequestType {
 
         if (instance.getAllowedUsers().contains(user.getUuid())) {
             user.removeInstance(instance);
-            instance.remove();
+            instance.delete();
 
             send.accept(Response.genSuccessResponse());
         } else {
@@ -139,6 +143,7 @@ public class InstanceMethods extends RequestType {
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     public static void getDownloadLink(User user, String payload, Consumer<Response> send) {
         FileInstanceModel request = ElytraHostAPI.getGson().fromJson(payload, FileInstanceModel.class);
 
@@ -160,6 +165,7 @@ public class InstanceMethods extends RequestType {
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     public static void getUploadLink(User user, String payload, Consumer<Response> send) {
         FileInstanceModel request = ElytraHostAPI.getGson().fromJson(payload, FileInstanceModel.class);
 

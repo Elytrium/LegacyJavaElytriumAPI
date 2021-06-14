@@ -1,10 +1,7 @@
 package ru.elytrium.host.api.model.module;
 
 import ru.elytrium.host.api.model.module.billing.ModuleBilling;
-import ru.elytrium.host.api.model.module.params.ModuleConfigFile;
-import ru.elytrium.host.api.model.module.params.ModuleMount;
-import ru.elytrium.host.api.model.module.params.ModulePlugin;
-import ru.elytrium.host.api.model.module.params.ModuleVersion;
+import ru.elytrium.host.api.model.module.params.*;
 
 import java.util.List;
 
@@ -16,7 +13,9 @@ public class Module {
     private List<ModuleBilling> availableBillings;
     private List<ModuleMount> mountDefaults;
     private List<ModulePlugin> pluginDefaults;
+    private List<ModuleConfig> configDefaults;
     private List<ModuleConfigFile> configFiles;
+    private List<String> availableTariffs;
 
     public String getDisplayName() {
         return displayName;
@@ -46,7 +45,15 @@ public class Module {
         return pluginDefaults;
     }
 
+    public List<ModuleConfig> getConfigDefaults() {
+        return configDefaults;
+    }
+
     public List<ModuleConfigFile> getConfigFiles() {
         return configFiles;
+    }
+
+    public List<String> getAvailableTariffs() {
+        return availableTariffs;
     }
 }

@@ -5,4 +5,5 @@ public class CreateInstanceModel {
     public String module;
     public String version;
     public String billingPeriod;
+    public String tariff;
 }
