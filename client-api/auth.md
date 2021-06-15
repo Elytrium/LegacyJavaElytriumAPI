@@ -27,7 +27,7 @@ description: API работы с пользователем
 <div class="h-captcha" data-sitekey="e5b9fdf9-38ad-4cff-97fd-d2e18755a3ee"></div>
 ```
 
-{% api-method method="post" host="https://api.elytrahost.ru" path="/v1/user/login" %}
+{% api-method method="get" host="https://api.elytrahost.ru" path="/user/login" %}
 {% api-method-summary %}
 Вход в аккаунт
 {% endapi-method-summary %}
@@ -86,7 +86,7 @@ description: API работы с пользователем
 
 
 
-{% api-method method="post" host="https://api.elytrahost.ru" path="/v1/user/login\_via\_linked\_account" %}
+{% api-method method="get" host="https://api.elytrahost.ru" path="/user/loginViaLinkedAccount" %}
 {% api-method-summary %}
 Вход в аккаунт через привязанную соц. сеть
 {% endapi-method-summary %}
@@ -143,7 +143,7 @@ OAuth или прочий токен от аккаунта
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="post" host="https://api.elytrahost.ru" path="/v1/user/send\_register\_link" %}
+{% api-method method="get" host="https://api.elytrahost.ru" path="/user/sendRegisterLink" %}
 {% api-method-summary %}
 Регистрация, отправить ссылку на почту
 {% endapi-method-summary %}
@@ -195,7 +195,7 @@ OAuth или прочий токен от аккаунта
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="post" host="https://api.elytrahost.ru" path="/v1/user/register" %}
+{% api-method method="get" host="https://api.elytrahost.ru" path="/user/register" %}
 {% api-method-summary %}
 Регистрация, подтвердить ссылку с почты
 {% endapi-method-summary %}
