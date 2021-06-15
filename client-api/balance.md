@@ -4,7 +4,7 @@ description: API работы с балансом пользователя
 
 # Balance
 
-{% api-method method="get" host="https://api.elytrahost.ru" path="/v1/balance/list\_methods" %}
+{% api-method method="get" host="https://api.elytrahost.ru" path="/balance/listMethods" %}
 {% api-method-summary %}
 Получить методы пополнения баланса
 {% endapi-method-summary %}
@@ -15,12 +15,6 @@ description: API работы с балансом пользователя
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-headers %}
-{% api-method-parameter name="Authorization" type="string" required=true %}
-Bearer Токен клиента
-{% endapi-method-parameter %}
-{% endapi-method-headers %}
-{% endapi-method-request %}
 
 {% api-method-response %}
 {% api-method-response-example httpCode=200 %}
@@ -45,7 +39,7 @@ Bearer Токен клиента
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="post" host="https://api.elytrahost.ru" path="/v1/balance/gen\_top\_up\_link" %}
+{% api-method method="get" host="https://api.elytrahost.ru" path="/balance/genTopUpLink" %}
 {% api-method-summary %}
 Получить ссылку на пополнение баланса
 {% endapi-method-summary %}
@@ -56,13 +50,11 @@ Bearer Токен клиента
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-headers %}
-{% api-method-parameter name="Authorization" type="string" required=true %}
-Bearer Токен клиента
-{% endapi-method-parameter %}
-{% endapi-method-headers %}
-
 {% api-method-body-parameters %}
+{% api-method-parameter name="token" type="string" required=true %}
+Токен пользователя
+{% endapi-method-parameter %}
+
 {% api-method-parameter name="amount" type="integer" required=true %}
 Пополняемая сумма в рублях
 {% endapi-method-parameter %}

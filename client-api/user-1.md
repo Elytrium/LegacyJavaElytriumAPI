@@ -1,25 +1,25 @@
 ---
-description: Получение метаинформации о сервере
+description: API работы с  профилем пользователя
 ---
 
-# Meta
+# User
 
-{% api-method method="get" host="" path="" %}
+{% api-method method="post" host="https://api.elytrahost.ru" path="/user/info" %}
 {% api-method-summary %}
-
+Информация о пользователе
 {% endapi-method-summary %}
 
 {% api-method-description %}
-
+Получение информации о пользователе
 {% endapi-method-description %}
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="" type="string" required=false %}
-
+{% api-method-body-parameters %}
+{% api-method-parameter name="token" type="string" required=true %}
+Bearer токен клиента
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+{% endapi-method-body-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
@@ -35,4 +35,6 @@ description: Получение метаинформации о сервере
 {% endapi-method-response %}
 {% endapi-method-spec %}
 {% endapi-method %}
+
+
 
