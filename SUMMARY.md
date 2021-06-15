@@ -8,7 +8,8 @@
 
 ## Client API
 
-* [User](client-api/user.md)
+* [User](client-api/user-1.md)
+* [Auth](client-api/auth.md)
 * [Instance](client-api/instance.md)
 * [Balance](client-api/balance.md)
 
