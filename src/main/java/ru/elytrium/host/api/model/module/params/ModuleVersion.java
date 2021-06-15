@@ -1,8 +1,8 @@
 package ru.elytrium.host.api.model.module.params;
 
 public class ModuleVersion {
-    public String version;
-    public String displayName;
+    private String version;
+    private String displayName;
 
     public ModuleVersion() {}
 
@@ -17,5 +17,13 @@ public class ModuleVersion {
             return ((ModuleVersion) o).version.equals(version);
         }
         return false;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 }

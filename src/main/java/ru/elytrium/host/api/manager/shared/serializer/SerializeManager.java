@@ -31,7 +31,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ru.elytrium.host.api.manager.shared;
+package ru.elytrium.host.api.manager.shared.serializer;
 
 import java.util.ArrayList;
 import java.util.Collection;

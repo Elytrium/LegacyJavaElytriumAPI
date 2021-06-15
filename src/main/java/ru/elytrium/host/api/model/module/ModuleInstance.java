@@ -7,7 +7,7 @@ import dev.morphia.query.experimental.filters.Filters;
 import net.lingala.zip4j.ZipFile;
 import org.apache.commons.io.FileUtils;
 import ru.elytrium.host.api.ElytraHostAPI;
-import ru.elytrium.host.api.manager.shared.StorageManager;
+import ru.elytrium.host.api.manager.shared.storage.StorageManager;
 import ru.elytrium.host.api.model.balance.Balance;
 import ru.elytrium.host.api.model.module.billing.ModuleBilling;
 import ru.elytrium.host.api.model.module.params.*;
@@ -67,7 +67,7 @@ public class ModuleInstance {
     }
 
     public String getContainerId() {
-        return getModule().getName() + " " + version.version;
+        return getModule().getName() + " " + version.getVersion();
     }
 
 
@@ -80,7 +80,7 @@ public class ModuleInstance {
             .filter(e -> e.enabled)
             .map(e -> e.mounts)
             .forEach(e -> e.stream()
-                .filter(q -> q.enabled && VersionUtils.checkVersion(q.versionRange, version.version))
+                .filter(q -> q.enabled && VersionUtils.checkVersion(q.versionRange, version.getVersion()))
                 .forEach(finalMounts::add));
 
         StorageManager storageManager = ElytraHostAPI.getStorageManager();
@@ -138,7 +138,7 @@ public class ModuleInstance {
                 .filter(e -> e.enabled)
                 .map(e -> e.mounts)
                 .forEach(e -> e.stream()
-                        .filter(q -> q.enabled && VersionUtils.checkVersion(q.versionRange, version.version))
+                        .filter(q -> q.enabled && VersionUtils.checkVersion(q.versionRange, version.getVersion()))
                         .forEach(finalMounts::add));
 
 

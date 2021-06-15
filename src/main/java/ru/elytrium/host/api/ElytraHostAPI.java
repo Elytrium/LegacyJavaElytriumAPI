@@ -12,14 +12,15 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
+import org.springframework.boot.SpringApplication;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 import ru.elytrium.host.api.manager.master.BalanceManager;
 import ru.elytrium.host.api.manager.master.InstanceManager;
-import ru.elytrium.host.api.manager.shared.ConfigManager;
-import ru.elytrium.host.api.manager.shared.StorageManager;
-import ru.elytrium.host.api.manager.shared.TickManager;
+import ru.elytrium.host.api.manager.shared.config.ConfigManager;
+import ru.elytrium.host.api.manager.shared.storage.StorageManager;
+import ru.elytrium.host.api.manager.shared.utils.TickManager;
 import ru.elytrium.host.api.model.Exclude;
 import ru.elytrium.host.api.model.backend.AutoExpandInstruction;
 import ru.elytrium.host.api.model.backend.StaticBackendInstance;
@@ -68,7 +69,6 @@ public class ElytraHostAPI {
     private static InstanceManager instanceManager;
     private static TickManager tickManager;
     private static StorageManager storageManager;
-    private static Listener listener;
     private static Random random;
 
     public static void main(String[] args) {
@@ -79,22 +79,7 @@ public class ElytraHostAPI {
     }
 
     public static void listenerLoad() {
-        if (listener != null) {
-            listener.stop();
-        }
-
-        try {
-            switch (config.getUsageCase()) {
-                case SLAVE:
-                    new SlaveListener(config.getApiHostname(), Integer.parseInt(config.getApiPort()));
-                    break;
-                case MASTER:
-                    new MasterListener(config.getApiHostname(), Integer.parseInt(config.getApiPort()));
-                    break;
-            }
-        } catch (IOException e) {
-            logger.fatal(e);
-        }
+        SpringApplication.run(ElytraHostAPI.class, args);
     }
 
     public static void configLoad() {
@@ -151,11 +136,6 @@ public class ElytraHostAPI {
                     System.out.println("Reloading..");
                     configLoad();
                     System.out.println("Reload completed");
-                    break;
-                case "restart":
-                    System.out.println("Restarting..");
-                    listenerLoad();
-                    System.out.println("Restart completed");
                     break;
             }
         }

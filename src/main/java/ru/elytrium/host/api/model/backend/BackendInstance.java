@@ -11,7 +11,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import ru.elytrium.host.api.ElytraHostAPI;
 import ru.elytrium.host.api.model.module.ModuleInstance;
 import ru.elytrium.host.api.model.module.RunningModuleInstance;
-import ru.elytrium.host.api.request.slave.SlaveRequest;
+import ru.elytrium.host.api.request.methods.SlaveRequest;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

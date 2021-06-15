@@ -1,7 +1,6 @@
 package ru.elytrium.host.api.manager.shared.serializer;
 
 import com.google.common.base.Charsets;
-import ru.elytrium.host.api.manager.shared.SerializeManager;
 
 import java.io.*;
 import java.util.HashMap;

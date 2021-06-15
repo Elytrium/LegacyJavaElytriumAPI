@@ -37,7 +37,6 @@ import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSerializer;
-import ru.elytrium.host.api.manager.shared.SerializeManager;
 
 import java.io.*;
 import java.util.LinkedHashMap;

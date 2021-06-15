@@ -1,4 +1,4 @@
-package ru.elytrium.host.api.manager.shared;
+package ru.elytrium.host.api.manager.shared.storage;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.AWSCredentials;

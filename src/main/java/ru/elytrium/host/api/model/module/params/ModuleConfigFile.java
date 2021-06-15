@@ -1,7 +1,7 @@
 package ru.elytrium.host.api.model.module.params;
 
 import ru.elytrium.host.api.ElytraHostAPI;
-import ru.elytrium.host.api.manager.shared.SerializeManager;
+import ru.elytrium.host.api.manager.shared.serializer.SerializeManager;
 import ru.elytrium.host.api.manager.shared.serializer.JsonConfiguration;
 import ru.elytrium.host.api.manager.shared.serializer.PropertiesConfiguration;
 import ru.elytrium.host.api.manager.shared.serializer.SerializeProvider;
@@ -36,7 +36,7 @@ public class ModuleConfigFile {
             SerializeManager config = provider.load(file);
 
             configs.stream()
-                    .filter(e -> VersionUtils.checkVersion(e.versionRange, version.version))
+                    .filter(e -> VersionUtils.checkVersion(e.versionRange, version.getVersion()))
                     .forEach(e -> config.set(e.name, e.value));
 
             provider.save(config, file);
@@ -53,7 +53,7 @@ public class ModuleConfigFile {
             SerializeManager config = provider.load(file);
 
             configs.stream()
-                    .filter(e -> VersionUtils.checkVersion(e.versionRange, version.version))
+                    .filter(e -> VersionUtils.checkVersion(e.versionRange, version.getVersion()))
                     .forEach(e -> e.value = config.get(e.name).toString());
         } catch (Exception e) {
             ElytraHostAPI.getLogger().fatal("Error while proceeding serialization of " + filename);

@@ -1,4 +1,4 @@
-package ru.elytrium.host.api.manager.shared;
+package ru.elytrium.host.api.manager.shared.config;
 
 import com.google.common.collect.Iterables;
 import org.yaml.snakeyaml.Yaml;

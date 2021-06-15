@@ -2,7 +2,7 @@ package ru.elytrium.host.api.manager.master;
 
 import dev.morphia.query.experimental.filters.Filters;
 import ru.elytrium.host.api.ElytraHostAPI;
-import ru.elytrium.host.api.manager.shared.TickManager;
+import ru.elytrium.host.api.manager.shared.utils.TickManager;
 import ru.elytrium.host.api.model.backend.AutoExpandBackendInstance;
 import ru.elytrium.host.api.model.backend.AutoExpandInstruction;
 import ru.elytrium.host.api.model.backend.BackendInstance;

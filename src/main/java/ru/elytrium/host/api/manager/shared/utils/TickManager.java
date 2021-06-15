@@ -1,4 +1,4 @@
-package ru.elytrium.host.api.manager.shared;
+package ru.elytrium.host.api.manager.shared.utils;
 
 import ru.elytrium.host.api.ElytraHostAPI;
 

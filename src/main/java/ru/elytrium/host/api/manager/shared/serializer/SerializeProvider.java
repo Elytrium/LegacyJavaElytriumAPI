@@ -33,8 +33,6 @@
 
 package ru.elytrium.host.api.manager.shared.serializer;
 
-import ru.elytrium.host.api.manager.shared.SerializeManager;
-
 import java.io.*;
 
 public abstract class SerializeProvider {
