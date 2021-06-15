@@ -51,7 +51,7 @@ public class TopUpMethod {
                     user.getBalance(),
                     amount,
                     topUpId,
-                    new Date(new Date().getTime() + ttl),
+                    new Date().getTime() + ttl,
                     this);
         } catch (YamlNetException e) {
             ElytraHostAPI.getLogger().fatal("Error while creating TopUpRequest");

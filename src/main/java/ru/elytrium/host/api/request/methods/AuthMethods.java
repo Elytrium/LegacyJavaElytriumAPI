@@ -1,6 +1,7 @@
 package ru.elytrium.host.api.request.methods;
 
 import dev.morphia.query.experimental.filters.Filters;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +13,7 @@ import ru.elytrium.host.api.model.user.User;
 import ru.elytrium.host.api.request.Response;
 
 @RestController
+@ConditionalOnProperty("elytrahost.master")
 public class AuthMethods {
 
     @RequestMapping("/auth/login")

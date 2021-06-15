@@ -11,7 +11,6 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import ru.elytrium.host.api.ElytraHostAPI;
 import ru.elytrium.host.api.model.module.ModuleInstance;
 import ru.elytrium.host.api.model.module.RunningModuleInstance;
-import ru.elytrium.host.api.request.methods.SlaveRequest;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -66,45 +65,28 @@ public abstract class BackendInstance {
     @SuppressWarnings("ConstantConditions")
     public static RunningModuleInstance sendInstanceRunRequest(String hostname, String apiPort, ModuleInstance instance) {
         String apiHost = hostname + ":" + apiPort;
-        String response = sendInstanceRequest(apiHost, new SlaveRequest(
-                ElytraHostAPI.getConfig().getMasterKey(),
-                "INSTANCE",
-                "RUN",
-                ElytraHostAPI.getGson().toJson(instance)
-        ));
+        String response = sendInstanceRequest(apiHost, "run", ElytraHostAPI.getGson().toJson(instance));
 
         String moduleInstanceAddress = hostname + ":" + Integer.parseInt(response);
         return new RunningModuleInstance(apiHost, instance, moduleInstanceAddress);
     }
 
     public static void sendInstancePauseRequest(String apiHost, ModuleInstance instance) {
-        String response = sendInstanceRequest(apiHost, new SlaveRequest(
-                ElytraHostAPI.getConfig().getMasterKey(),
-                "INSTANCE",
-                "PAUSE",
-                ElytraHostAPI.getGson().toJson(instance)
-        ));
+        sendInstanceRequest(apiHost, "pause", ElytraHostAPI.getGson().toJson(instance));
     }
 
     @SuppressWarnings("UnstableApiUsage")
     public static List<ModuleInstance> sendInstanceListRequest(String apiHost) {
-        String response = sendInstanceRequest(apiHost, new SlaveRequest(
-                ElytraHostAPI.getConfig().getMasterKey(),
-                "INSTANCE",
-                "LIST_RUNNING_INSTANCES",
-                ""
-        ));
+        String response = sendInstanceRequest(apiHost, "listRunningInstances", "");
 
         return ElytraHostAPI.getGson().fromJson(response, new TypeToken<List<ModuleInstance>>(){}.getType());
     }
 
-    public static String sendInstanceRequest(String apiHost, SlaveRequest request) {
+    public static String sendInstanceRequest(String apiHost, String method, String request) {
         try {
-            String data = ElytraHostAPI.getGson().toJson(request);
-
             CloseableHttpClient httpClient = HttpClients.createDefault();
-            HttpPost post = new HttpPost("http://" + apiHost + "/api");
-            post.setEntity(new StringEntity(data, ContentType.APPLICATION_JSON));
+            HttpPost post = new HttpPost("https://" + apiHost + "/slave/" + method);
+            post.setEntity(new StringEntity(request, ContentType.APPLICATION_JSON));
             CloseableHttpResponse httpResponse = httpClient.execute(post);
 
             return IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);

@@ -10,7 +10,7 @@ import java.util.Date;
 public class BalanceManager implements TickManager.TickTask {
     @Override
     public void onTick() {
-        ElytraHostAPI.getDatastore().find(PendingPurchase.class).filter(Filters.lt("invalidationDate", new Date())).delete();
+        ElytraHostAPI.getDatastore().find(PendingPurchase.class).filter(Filters.lt("invalidationDate", new Date().getTime())).delete();
         ElytraHostAPI.getDatastore().find(PendingPurchase.class).forEach(PendingPurchase::proceed);
     }
 }

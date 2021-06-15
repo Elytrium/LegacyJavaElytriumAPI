@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
@@ -41,6 +42,8 @@ import java.util.Scanner;
  * @author hevav
  * @since 0.0.1
  */
+
+@SpringBootApplication
 public class ElytraHostAPI {
     private static final ExclusionStrategy strategy = new ExclusionStrategy() {
         @Override
@@ -79,6 +82,17 @@ public class ElytraHostAPI {
     }
 
     public static void listenerLoad() {
+        switch (config.getUsageCase()) {
+            case MASTER:
+                System.setProperty("elytrahost.master", "true");
+                break;
+            case SLAVE:
+                System.setProperty("elytrahost.slave", "true");
+                break;
+        }
+
+        System.setProperty("server.address", config.getApiHostname());
+        System.setProperty("server.port", config.getApiPort());
         SpringApplication.run(ElytraHostAPI.class, args);
     }
 

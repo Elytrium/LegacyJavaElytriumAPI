@@ -1,5 +1,8 @@
 package ru.elytrium.host.api.model.module.params;
 
+import dev.morphia.annotations.Entity;
+
+@Entity("module_versions")
 public class ModuleVersion {
     private String version;
     private String displayName;

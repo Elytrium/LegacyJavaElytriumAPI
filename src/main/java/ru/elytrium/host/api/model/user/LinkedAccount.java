@@ -1,5 +1,8 @@
 package ru.elytrium.host.api.model.user;
 
+import dev.morphia.annotations.Entity;
+
+@Entity("linked_account")
 public class LinkedAccount {
     public String displayParam;
     public String id;

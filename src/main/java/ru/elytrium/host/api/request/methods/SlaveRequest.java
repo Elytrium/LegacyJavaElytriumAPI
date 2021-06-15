@@ -1,5 +1,6 @@
 package ru.elytrium.host.api.request.methods;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,6 +11,7 @@ import ru.elytrium.host.api.model.module.ModuleInstance;
 import java.util.List;
 
 @RestController
+@ConditionalOnProperty("elytrahost.slave")
 public class SlaveRequest {
     private static final ContainerManager containerManager = new ContainerManager();
 

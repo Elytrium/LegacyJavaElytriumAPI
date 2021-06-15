@@ -20,13 +20,13 @@ public class PendingPurchase {
 
     private int amount;
 
-    private Date invalidationDate;
+    private long invalidationDate;
 
     private String method;
 
     public PendingPurchase() {}
 
-    public PendingPurchase(Balance balance, int amount, String topUpId, Date invalidationDate, TopUpMethod method) {
+    public PendingPurchase(Balance balance, int amount, String topUpId, long invalidationDate, TopUpMethod method) {
         this.balance = balance;
         this.amount = amount;
         this.topUpId = topUpId;
@@ -47,7 +47,11 @@ public class PendingPurchase {
         return amount;
     }
 
-    public Date getInvalidationDate() {
+    public String getPayString() {
+        return getMethod().getPayString(topUpId);
+    }
+
+    public long getInvalidationDate() {
         return invalidationDate;
     }
 
@@ -60,7 +64,7 @@ public class PendingPurchase {
     }
 
     public void proceed() {
-        if (getInvalidationDate().getTime() <= new Date().getTime()) {
+        if (getInvalidationDate() <= new Date().getTime()) {
             delete();
         }
         if (validate()) {
@@ -88,4 +92,5 @@ public class PendingPurchase {
         }
         return false;
     }
+
 }

@@ -1,5 +1,8 @@
 package ru.elytrium.host.api.model.module.billing;
 
+import dev.morphia.annotations.Entity;
+
+@Entity("module_billings")
 public class ModuleBilling {
     private ModuleBillingType billingType;
     private int amount;

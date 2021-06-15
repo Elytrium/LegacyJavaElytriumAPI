@@ -40,6 +40,14 @@ public class Response {
         return new Response(false, message, null, 401);
     }
 
+    public static Response getTooManyRequestResponse() {
+        return new Response(false, "Too many requests", null, 429);
+    }
+
+    public static Response getServerErrorResponse() {
+        return new Response(false, "Internal server error", null, 500);
+    }
+
     public boolean isSuccess() {
         return success;
     }

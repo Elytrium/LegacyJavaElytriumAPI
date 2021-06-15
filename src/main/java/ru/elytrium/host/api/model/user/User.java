@@ -35,6 +35,7 @@ public class User {
     @Reference
     private List<ModuleInstance> instances;
 
+    @Reference
     private HashMap<String, LinkedAccount> linkedAccounts;
 
     @Exclude

@@ -1,17 +1,16 @@
 package ru.elytrium.host.api.model.module.params;
 
+import dev.morphia.annotations.Entity;
+import dev.morphia.annotations.Reference;
 import ru.elytrium.host.api.ElytraHostAPI;
-import ru.elytrium.host.api.manager.shared.serializer.SerializeManager;
-import ru.elytrium.host.api.manager.shared.serializer.JsonConfiguration;
-import ru.elytrium.host.api.manager.shared.serializer.PropertiesConfiguration;
-import ru.elytrium.host.api.manager.shared.serializer.SerializeProvider;
-import ru.elytrium.host.api.manager.shared.serializer.YamlConfiguration;
+import ru.elytrium.host.api.manager.shared.serializer.*;
 import ru.elytrium.host.api.model.Exclude;
 import ru.elytrium.host.api.utils.VersionUtils;
 
 import java.io.File;
 import java.util.List;
 
+@Entity("module_config_file")
 public class ModuleConfigFile {
 
     public String folder;
@@ -21,6 +20,7 @@ public class ModuleConfigFile {
     @Exclude
     public FileMethod method;
 
+    @Reference
     public List<ModuleConfig> configs;
 
     public enum FileMethod {

@@ -1,6 +1,7 @@
 package ru.elytrium.host.api.request.methods;
 
 import dev.morphia.query.experimental.filters.Filters;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,6 +19,7 @@ import java.util.Date;
 import java.util.Optional;
 
 @RestController
+@ConditionalOnProperty("elytrahost.master")
 public class InstanceMethods {
 
     @RequestMapping("/instance/listAvailable")

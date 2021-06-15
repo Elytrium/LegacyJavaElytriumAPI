@@ -35,18 +35,24 @@ public class ModuleInstance {
 
     private String name;
 
+    @Reference
     private ModuleVersion version;
 
+    @Reference
     private ModuleBilling billing;
 
     private String tariff;
 
+    @Reference
     private List<ModuleMount> mountsOverrides;
 
+    @Reference
     private List<ModuleConfigFile> configFilesOverrides;
 
+    @Reference
     private List<ModuleConfig> configsOverrides;
 
+    @Reference
     private List<ModulePlugin> pluginsOverrides;
 
     public ModuleInstance() {}
