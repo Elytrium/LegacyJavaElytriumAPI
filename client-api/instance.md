@@ -42,7 +42,7 @@ description: API работы с Instance (серверами)
 {% api-method-spec %}
 {% api-method-request %}
 {% api-method-body-parameters %}
-{% api-method-parameter name="name" type="string" required=false %}
+{% api-method-parameter name="name" type="string" required=true %}
 Никнейм владельца
 {% endapi-method-parameter %}
 
